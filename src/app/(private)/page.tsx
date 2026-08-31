@@ -11,9 +11,40 @@ export const dynamic = "force-dynamic";
 export default async function Dashboard() {
   await connectDb();
   const now = new Date();
-  const settings = await Settings.findOne({ key: "dojo" })
+  const settingsPromise = Settings.findOne({ key: "dojo" })
     .select("weightStaleDays")
     .lean();
+  const studentsPromise = Student.countDocuments({
+    active: true,
+    deletedAt: null,
+  });
+  const observationsPromise = Exam.aggregate<{ total: number }>([
+    { $match: { deletedAt: null } },
+    { $unwind: "$registrations" },
+    { $unwind: "$registrations.observations" },
+    { $match: { "registrations.observations.status": "PENDING" } },
+    { $count: "total" },
+  ]);
+  const examsPromise = Exam.find({ date: { $gte: now }, deletedAt: null })
+    .select("name date")
+    .sort({ date: 1 })
+    .limit(3)
+    .lean();
+  const tournamentsPromise = Tournament.find({
+    date: { $gte: now },
+    deletedAt: null,
+  })
+    .select("name date")
+    .sort({ date: 1 })
+    .limit(3)
+    .lean();
+  const activitiesPromise = Activity.find({ deletedAt: null })
+    .select("name type startDate")
+    .sort({ startDate: -1 })
+    .limit(4)
+    .lean();
+
+  const settings = await settingsPromise;
   const staleDate = new Date(
     now.getTime() - Number(settings?.weightStaleDays ?? 90) * 86_400_000,
   );
@@ -25,34 +56,16 @@ export default async function Dashboard() {
     tournaments,
     activities,
   ] = await Promise.all([
-    Student.countDocuments({ active: true, deletedAt: null }),
+    studentsPromise,
     Student.countDocuments({
       active: true,
       deletedAt: null,
       $or: [{ weightUpdatedAt: { $lt: staleDate } }, { weightUpdatedAt: null }],
     }),
-    Exam.aggregate<{ total: number }>([
-      { $match: { deletedAt: null } },
-      { $unwind: "$registrations" },
-      { $unwind: "$registrations.observations" },
-      { $match: { "registrations.observations.status": "PENDING" } },
-      { $count: "total" },
-    ]),
-    Exam.find({ date: { $gte: now }, deletedAt: null })
-      .select("name date")
-      .sort({ date: 1 })
-      .limit(3)
-      .lean(),
-    Tournament.find({ date: { $gte: now }, deletedAt: null })
-      .select("name date")
-      .sort({ date: 1 })
-      .limit(3)
-      .lean(),
-    Activity.find({ deletedAt: null })
-      .select("name type startDate")
-      .sort({ startDate: -1 })
-      .limit(4)
-      .lean(),
+    observationsPromise,
+    examsPromise,
+    tournamentsPromise,
+    activitiesPromise,
   ]);
   const observations = observationRows[0]?.total ?? 0;
   const upcoming = [...exams, ...tournaments]
