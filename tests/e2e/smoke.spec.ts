@@ -33,3 +33,23 @@ test("shows operational status without exposing secrets", async ({ page }) => {
   await expect(page.locator("body")).not.toContainText("MONGODB_URI");
   await expect(page.locator("body")).not.toContainText("AUTH_SECRET");
 });
+
+test("navigates through optimized management pages", async ({ page }) => {
+  await loginAsAdmin(page);
+  const routes = [
+    ["Actividades", "/activities"],
+    ["Exámenes", "/exams"],
+    ["Torneos", "/tournaments"],
+    ["Biblioteca", "/documents"],
+    ["Auditoría", "/audit"],
+    ["Usuarios", "/users"],
+  ] as const;
+
+  for (const [heading, route] of routes) {
+    await page.goto(route);
+    await expect(page.getByRole("heading", { name: heading })).toBeVisible();
+    await expect(page.locator("main")).not.toContainText(
+      "Internal Server Error",
+    );
+  }
+});
