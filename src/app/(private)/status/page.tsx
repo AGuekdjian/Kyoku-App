@@ -1,6 +1,5 @@
-import { redirect } from "next/navigation";
 import packageJson from "../../../../package.json";
-import { getSession } from "@/features/auth/session";
+import { requireAdminPage } from "@/features/auth/require-admin-page";
 import { connectDb } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
@@ -21,8 +20,7 @@ async function databaseStatus() {
 }
 
 export default async function StatusPage() {
-  const session = await getSession();
-  if (session?.role !== "ADMIN") redirect("/");
+  await requireAdminPage();
   const database = await databaseStatus();
   const commit = process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7);
   const storageProvider = process.env.STORAGE_PROVIDER ?? "local";

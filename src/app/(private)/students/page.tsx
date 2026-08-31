@@ -1,7 +1,8 @@
-import Link from "next/link";
+import { PaginationNav } from "@/components/pagination-nav";
 import { ResourceForm } from "@/components/resource-form";
 import { calculateAge } from "@/features/students/domain/age";
 import { connectDb } from "@/lib/db";
+import { paginationInput, totalPages } from "@/lib/pagination";
 import { Grade } from "@/models/Grade";
 import { Student } from "@/models/Student";
 
@@ -15,18 +16,6 @@ type SearchParams = Promise<{
   page?: string;
 }>;
 
-function pageHref(
-  params: { q?: string; active?: string; grade?: string },
-  page: number,
-) {
-  const query = new URLSearchParams();
-  if (params.q) query.set("q", params.q);
-  if (params.active) query.set("active", params.active);
-  if (params.grade) query.set("grade", params.grade);
-  query.set("page", String(page));
-  return `/students?${query.toString()}`;
-}
-
 export default async function StudentsPage({
   searchParams,
 }: {
@@ -34,7 +23,7 @@ export default async function StudentsPage({
 }) {
   await connectDb();
   const params = await searchParams;
-  const page = Math.max(1, Number(params.page) || 1);
+  const { page, skip } = paginationInput(params.page, PAGE_SIZE);
   const filter: Record<string, unknown> = { deletedAt: null };
   if (params.q?.trim()) filter.$text = { $search: params.q.trim() };
   if (params.active === "true" || params.active === "false")
@@ -50,7 +39,7 @@ export default async function StudentsPage({
           ? { score: { $meta: "textScore" } }
           : { lastName: 1, firstName: 1 },
       )
-      .skip((page - 1) * PAGE_SIZE)
+      .skip(skip)
       .limit(PAGE_SIZE)
       .lean(),
     Student.countDocuments(filter),
@@ -59,7 +48,7 @@ export default async function StudentsPage({
       .sort({ order: 1 })
       .lean(),
   ]);
-  const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const pages = totalPages(total, PAGE_SIZE);
 
   return (
     <>
@@ -185,21 +174,13 @@ export default async function StudentsPage({
         {students.length === 0 && (
           <p className="empty">No hay alumnos que coincidan con los filtros.</p>
         )}
-        <nav className="pagination" aria-label="Paginación de alumnos">
-          {page > 1 ? (
-            <Link href={pageHref(params, page - 1)}>Anterior</Link>
-          ) : (
-            <span />
-          )}
-          <span>
-            Página {page} de {pages}
-          </span>
-          {page < pages ? (
-            <Link href={pageHref(params, page + 1)}>Siguiente</Link>
-          ) : (
-            <span />
-          )}
-        </nav>
+        <PaginationNav
+          path="/students"
+          page={page}
+          pages={pages}
+          total={total}
+          searchParams={params}
+        />
       </section>
     </>
   );

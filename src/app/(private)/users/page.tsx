@@ -1,8 +1,8 @@
-import { redirect } from "next/navigation";
 import { PaginationNav } from "@/components/pagination-nav";
 import { ResourceForm } from "@/components/resource-form";
-import { getSession } from "@/features/auth/session";
+import { requireAdminPage } from "@/features/auth/require-admin-page";
 import { connectDb } from "@/lib/db";
+import { paginationInput, totalPages } from "@/lib/pagination";
 import { User } from "@/models/User";
 
 export const dynamic = "force-dynamic";
@@ -13,20 +13,20 @@ export default async function Users({
 }: {
   searchParams: Promise<{ page?: string }>;
 }) {
-  if ((await getSession())?.role !== "ADMIN") redirect("/");
+  await requireAdminPage();
   await connectDb();
   const params = await searchParams;
-  const page = Math.max(1, Number(params.page) || 1);
+  const { page, skip } = paginationInput(params.page, PAGE_SIZE);
   const [items, total] = await Promise.all([
     User.find()
       .select("name email role active")
       .sort({ name: 1 })
-      .skip((page - 1) * PAGE_SIZE)
+      .skip(skip)
       .limit(PAGE_SIZE)
       .lean(),
     User.countDocuments(),
   ]);
-  const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const pages = totalPages(total, PAGE_SIZE);
   return (
     <>
       <header>

@@ -1,7 +1,7 @@
-import { redirect } from "next/navigation";
 import { PaginationNav } from "@/components/pagination-nav";
-import { getSession } from "@/features/auth/session";
+import { requireAdminPage } from "@/features/auth/require-admin-page";
 import { connectDb } from "@/lib/db";
+import { paginationInput, totalPages } from "@/lib/pagination";
 import { AuditLog } from "@/models/AuditLog";
 
 export const dynamic = "force-dynamic";
@@ -12,21 +12,21 @@ export default async function Audit({
 }: {
   searchParams: Promise<{ page?: string }>;
 }) {
-  if ((await getSession())?.role !== "ADMIN") redirect("/");
+  await requireAdminPage();
   await connectDb();
   const params = await searchParams;
-  const page = Math.max(1, Number(params.page) || 1);
+  const { page, skip } = paginationInput(params.page, PAGE_SIZE);
   const [items, total] = await Promise.all([
     AuditLog.find()
       .select("action entity timestamp actorId")
       .sort({ timestamp: -1 })
-      .skip((page - 1) * PAGE_SIZE)
+      .skip(skip)
       .limit(PAGE_SIZE)
       .populate("actorId", "name")
       .lean(),
     AuditLog.countDocuments(),
   ]);
-  const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const pages = totalPages(total, PAGE_SIZE);
   return (
     <>
       <header>
