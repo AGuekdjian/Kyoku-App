@@ -1,2 +1,32 @@
-import path from"node:path";import{readFile}from"node:fs/promises";import{NextRequest,NextResponse}from"next/server";import{connectDb}from"@/lib/db";import{apiError}from"@/lib/http";import{requireSession}from"@/features/auth/session";import{DojoDocument}from"@/models/Document";
-export async function GET(req:NextRequest){try{await requireSession();await connectDb();const key=req.nextUrl.searchParams.get('key');const document=key?await DojoDocument.findOne({storageKey:key,deletedAt:null}).lean():null;if(!document)throw new Error('NOT_FOUND');const root=path.join(process.cwd(),'.data','uploads');const file=path.resolve(root,String(document.storageKey));if(!file.startsWith(`${root}${path.sep}`))throw new Error('NOT_FOUND');const data=await readFile(file);return new NextResponse(data,{headers:{'Content-Type':'application/pdf','Content-Disposition':`inline; filename="${String(document.name).replace(/["\r\n]/g,'')}.pdf"`,'Cache-Control':'private, max-age=300'}})}catch(e){return apiError(e)}}
+import path from "node:path";
+import { readFile } from "node:fs/promises";
+import { NextRequest, NextResponse } from "next/server";
+import { connectDb } from "@/lib/db";
+import { apiError } from "@/lib/http";
+import { requireSession } from "@/features/auth/session";
+import { DojoDocument } from "@/models/Document";
+import { AppError } from "@/lib/app-error";
+export async function GET(req: NextRequest) {
+  try {
+    await requireSession();
+    await connectDb();
+    const key = req.nextUrl.searchParams.get("key");
+    const document = key
+      ? await DojoDocument.findOne({ storageKey: key, deletedAt: null }).lean()
+      : null;
+    if (!document) throw new AppError("NOT_FOUND");
+    const root = path.join(process.cwd(), ".data", "uploads");
+    const file = path.resolve(root, String(document.storageKey));
+    if (!file.startsWith(`${root}${path.sep}`)) throw new AppError("NOT_FOUND");
+    const data = await readFile(file);
+    return new NextResponse(data, {
+      headers: {
+        "Content-Type": "application/pdf",
+        "Content-Disposition": `inline; filename="${String(document.name).replace(/["\r\n]/g, "")}.pdf"`,
+        "Cache-Control": "private, max-age=300",
+      },
+    });
+  } catch (e) {
+    return apiError(e);
+  }
+}

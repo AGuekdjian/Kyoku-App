@@ -1,6 +1,17 @@
 import mongoose from "mongoose";
+import type { Model, Types } from "mongoose";
 const { Schema, model, models } = mongoose;
-const auditSchema = new Schema(
+export interface AuditLogRecord {
+  actorId: Types.ObjectId;
+  action: string;
+  entity: string;
+  entityId: Types.ObjectId;
+  metadata?: Record<string, unknown>;
+  correlationId?: string;
+  timestamp: Date;
+}
+
+const auditSchema = new Schema<AuditLogRecord>(
   {
     actorId: {
       type: Schema.Types.ObjectId,
@@ -18,4 +29,6 @@ const auditSchema = new Schema(
 );
 auditSchema.index({ entity: 1, entityId: 1, timestamp: -1 });
 auditSchema.index({ timestamp: -1 });
-export const AuditLog = models.AuditLog ?? model("AuditLog", auditSchema);
+export const AuditLog =
+  (models.AuditLog as Model<AuditLogRecord> | undefined) ??
+  model<AuditLogRecord>("AuditLog", auditSchema);

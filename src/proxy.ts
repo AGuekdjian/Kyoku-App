@@ -1,3 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
-export function proxy(request:NextRequest){const id=request.headers.get('x-request-id')??crypto.randomUUID();if(!['GET','HEAD','OPTIONS'].includes(request.method)){const origin=request.headers.get('origin');const host=request.headers.get('x-forwarded-host')??request.headers.get('host');if(origin&&host&&new URL(origin).host!==host)return NextResponse.json({error:'INVALID_ORIGIN',correlationId:id},{status:403})}const headers=new Headers(request.headers);headers.set('x-request-id',id);const response=NextResponse.next({request:{headers}});response.headers.set('x-request-id',id);return response}
-export const config={matcher:['/((?!_next/static|_next/image|favicon.ico).*)']};
+export function proxy(request: NextRequest) {
+  const id = request.headers.get("x-request-id") ?? crypto.randomUUID();
+  if (!["GET", "HEAD", "OPTIONS"].includes(request.method)) {
+    const origin = request.headers.get("origin");
+    const host =
+      request.headers.get("x-forwarded-host") ?? request.headers.get("host");
+    if (origin && host && new URL(origin).host !== host)
+      return NextResponse.json(
+        { error: "INVALID_ORIGIN", correlationId: id },
+        { status: 403 },
+      );
+  }
+  const headers = new Headers(request.headers);
+  headers.set("x-request-id", id);
+  const response = NextResponse.next({ request: { headers } });
+  response.headers.set("x-request-id", id);
+  return response;
+}
+export const config = {
+  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+};

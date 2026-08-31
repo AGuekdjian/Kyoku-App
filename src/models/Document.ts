@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import type { InferSchemaType, Model } from "mongoose";
 const { Schema, model, models } = mongoose;
 const schema = new Schema(
   {
@@ -17,5 +18,7 @@ const schema = new Schema(
   { timestamps: true },
 );
 schema.index({ deletedAt: 1, createdAt: -1 });
+export type DojoDocumentRecord = InferSchemaType<typeof schema>;
 export const DojoDocument =
-  models.DojoDocument ?? model("DojoDocument", schema);
+  (models.DojoDocument as Model<DojoDocumentRecord> | undefined) ??
+  model<DojoDocumentRecord>("DojoDocument", schema);

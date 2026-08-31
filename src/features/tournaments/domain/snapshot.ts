@@ -10,9 +10,18 @@ export type TournamentSnapshot = {
   gradeName: string;
 };
 
-export function createTournamentSnapshot(student: {
-  firstName: string; lastName: string; birthDate: Date; weight?: number; height?: number; currentGradeId: string;
-}, gradeName: string, registrationDate: Date): TournamentSnapshot {
+export function createTournamentSnapshot(
+  student: {
+    firstName: string;
+    lastName: string;
+    birthDate: Date;
+    weight?: number;
+    height?: number;
+    currentGradeId: string;
+  },
+  gradeName: string,
+  registrationDate: Date,
+): TournamentSnapshot {
   return {
     fullName: `${student.firstName.trim()} ${student.lastName.trim()}`,
     birthDate: new Date(student.birthDate),
