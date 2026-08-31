@@ -1,6 +1,7 @@
 import { PaginationNav } from "@/components/pagination-nav";
 import { ResourceForm } from "@/components/resource-form";
 import { connectDb } from "@/lib/db";
+import { paginationInput, totalPages } from "@/lib/pagination";
 import { Exam } from "@/models/Exam";
 
 export const dynamic = "force-dynamic";
@@ -13,7 +14,7 @@ export default async function Exams({
 }) {
   await connectDb();
   const params = await searchParams;
-  const page = Math.max(1, Number(params.page) || 1);
+  const { page, skip } = paginationInput(params.page, PAGE_SIZE);
   const filter = { deletedAt: null };
   const [items, total] = await Promise.all([
     Exam.find(filter)
@@ -21,12 +22,12 @@ export default async function Exams({
         "name date status registrations._id registrations.observations.status",
       )
       .sort({ date: -1 })
-      .skip((page - 1) * PAGE_SIZE)
+      .skip(skip)
       .limit(PAGE_SIZE)
       .lean(),
     Exam.countDocuments(filter),
   ]);
-  const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const pages = totalPages(total, PAGE_SIZE);
   return (
     <>
       <header>

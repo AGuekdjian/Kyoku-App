@@ -1,6 +1,7 @@
 import { PaginationNav } from "@/components/pagination-nav";
 import { ResourceForm } from "@/components/resource-form";
 import { connectDb } from "@/lib/db";
+import { paginationInput, totalPages } from "@/lib/pagination";
 import { Tournament } from "@/models/Tournament";
 
 export const dynamic = "force-dynamic";
@@ -13,18 +14,18 @@ export default async function Tournaments({
 }) {
   await connectDb();
   const params = await searchParams;
-  const page = Math.max(1, Number(params.page) || 1);
+  const { page, skip } = paginationInput(params.page, PAGE_SIZE);
   const filter = { deletedAt: null };
   const [items, total] = await Promise.all([
     Tournament.find(filter)
       .select("name date registrations._id")
       .sort({ date: -1 })
-      .skip((page - 1) * PAGE_SIZE)
+      .skip(skip)
       .limit(PAGE_SIZE)
       .lean(),
     Tournament.countDocuments(filter),
   ]);
-  const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const pages = totalPages(total, PAGE_SIZE);
   return (
     <>
       <header>
