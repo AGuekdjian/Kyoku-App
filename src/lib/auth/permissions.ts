@@ -11,8 +11,21 @@ export type Permission =
   | "audit:read";
 
 const permissions: Record<Role, ReadonlySet<Permission>> = {
-  ADMIN: new Set(["students:manage", "activities:manage", "exams:manage", "tournaments:manage", "settings:manage", "users:manage", "audit:read"]),
-  INSTRUCTOR: new Set(["students:manage", "activities:manage", "exams:manage", "tournaments:manage"]),
+  ADMIN: new Set([
+    "students:manage",
+    "activities:manage",
+    "exams:manage",
+    "tournaments:manage",
+    "settings:manage",
+    "users:manage",
+    "audit:read",
+  ]),
+  INSTRUCTOR: new Set([
+    "students:manage",
+    "activities:manage",
+    "exams:manage",
+    "tournaments:manage",
+  ]),
 };
 
 export function can(role: Role, permission: Permission): boolean {
@@ -20,5 +33,6 @@ export function can(role: Role, permission: Permission): boolean {
 }
 
 export function authorize(role: Role, permission: Permission): void {
-  if (!can(role, permission)) throw new Error("FORBIDDEN");
+  if (!can(role, permission)) throw new AppError("FORBIDDEN");
 }
+import { AppError } from "@/lib/app-error";

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { audit } from "@/features/audit/service";
+import { AppError } from "@/lib/app-error";
 import { requireSession } from "@/features/auth/session";
 import { studentSchema } from "@/features/students/schemas/student";
 import { connectDb } from "@/lib/db";
@@ -23,7 +24,7 @@ export async function PATCH(request: NextRequest, { params }: Context) {
       update,
       { returnDocument: "after", runValidators: true },
     );
-    if (!student) throw new Error("NOT_FOUND");
+    if (!student) throw new AppError("NOT_FOUND");
     await audit({
       actorId: session.userId,
       action: "student.update",
@@ -45,7 +46,7 @@ export async function DELETE(_: NextRequest, { params }: Context) {
       { _id: id, deletedAt: null },
       { deletedAt: new Date(), active: false },
     );
-    if (!student) throw new Error("NOT_FOUND");
+    if (!student) throw new AppError("NOT_FOUND");
     await audit({
       actorId: session.userId,
       action: "student.delete",

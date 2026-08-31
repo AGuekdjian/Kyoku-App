@@ -1,2 +1,26 @@
-import {describe,expect,it} from "vitest";import{decideExamResult,resolveObservation}from"./result";
-describe("exam decisions",()=>{it("promotes passed students",()=>expect(decideExamResult("PASSED").promote).toBe(true));it("promotes and creates multiple pending observations",()=>{const result=decideExamResult("PASSED_WITH_OBSERVATION",[{category:"Kata",description:"Repeat"},{category:"Kihon",description:"Improve"}]);expect(result.promote).toBe(true);expect(result.observations).toHaveLength(2);});it("requires an observation",()=>expect(()=>decideExamResult("PASSED_WITH_OBSERVATION")).toThrow("OBSERVATION_REQUIRED"));it.each(["FAILED","ABSENT","PENDING"] as const)("does not promote %s",result=>expect(decideExamResult(result).promote).toBe(false));it("prevents resolving twice",()=>expect(()=>resolveObservation("RESOLVED")).toThrow("OBSERVATION_ALREADY_RESOLVED"));});
+import { describe, expect, it } from "vitest";
+import { decideExamResult, resolveObservation } from "./result";
+describe("exam decisions", () => {
+  it("promotes passed students", () =>
+    expect(decideExamResult("PASSED").promote).toBe(true));
+  it("promotes and creates multiple pending observations", () => {
+    const result = decideExamResult("PASSED_WITH_OBSERVATION", [
+      { category: "Kata", description: "Repeat" },
+      { category: "Kihon", description: "Improve" },
+    ]);
+    expect(result.promote).toBe(true);
+    expect(result.observations).toHaveLength(2);
+  });
+  it("requires an observation", () =>
+    expect(() => decideExamResult("PASSED_WITH_OBSERVATION")).toThrow(
+      "OBSERVATION_REQUIRED",
+    ));
+  it.each(["FAILED", "ABSENT", "PENDING"] as const)(
+    "does not promote %s",
+    (result) => expect(decideExamResult(result).promote).toBe(false),
+  );
+  it("prevents resolving twice", () =>
+    expect(() => resolveObservation("RESOLVED")).toThrow(
+      "OBSERVATION_ALREADY_RESOLVED",
+    ));
+});

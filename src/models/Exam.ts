@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import type { InferSchemaType, Model } from "mongoose";
 const { Schema, model, models } = mongoose;
 const observationSchema = new Schema(
   {
@@ -58,4 +59,7 @@ const examSchema = new Schema(
   { timestamps: true },
 );
 examSchema.index({ deletedAt: 1, date: -1 });
-export const Exam = models.Exam ?? model("Exam", examSchema);
+export type ExamRecord = InferSchemaType<typeof examSchema>;
+export const Exam =
+  (models.Exam as Model<ExamRecord> | undefined) ??
+  model<ExamRecord>("Exam", examSchema);

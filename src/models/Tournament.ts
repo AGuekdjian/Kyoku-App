@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import type { InferSchemaType, Model } from "mongoose";
 const { Schema, model, models } = mongoose;
 const registrationSchema = new Schema(
   {
@@ -40,5 +41,7 @@ const tournamentSchema = new Schema(
   { timestamps: true },
 );
 tournamentSchema.index({ deletedAt: 1, date: -1 });
+export type TournamentRecord = InferSchemaType<typeof tournamentSchema>;
 export const Tournament =
-  models.Tournament ?? model("Tournament", tournamentSchema);
+  (models.Tournament as Model<TournamentRecord> | undefined) ??
+  model<TournamentRecord>("Tournament", tournamentSchema);

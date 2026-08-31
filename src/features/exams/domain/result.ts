@@ -1,4 +1,12 @@
-export const examResults = ["PENDING", "PASSED", "PASSED_WITH_OBSERVATION", "FAILED", "ABSENT"] as const;
+import { AppError } from "@/lib/app-error";
+
+export const examResults = [
+  "PENDING",
+  "PASSED",
+  "PASSED_WITH_OBSERVATION",
+  "FAILED",
+  "ABSENT",
+] as const;
 export type ExamResult = (typeof examResults)[number];
 export type ObservationInput = { category: string; description: string };
 
@@ -8,7 +16,10 @@ export type ExamDecision = {
   observations: Array<ObservationInput & { status: "PENDING" }>;
 };
 
-export function decideExamResult(result: ExamResult, observations: readonly ObservationInput[] = []): ExamDecision {
+export function decideExamResult(
+  result: ExamResult,
+  observations: readonly ObservationInput[] = [],
+): ExamDecision {
   if (result === "PASSED_WITH_OBSERVATION" && observations.length === 0) {
     throw new Error("OBSERVATION_REQUIRED");
   }
@@ -23,7 +34,10 @@ export function decideExamResult(result: ExamResult, observations: readonly Obse
   };
 }
 
-export function resolveObservation(status: "PENDING" | "RESOLVED", resolvedAt = new Date()): { status: "RESOLVED"; resolvedAt: Date } {
-  if (status === "RESOLVED") throw new Error("OBSERVATION_ALREADY_RESOLVED");
+export function resolveObservation(
+  status: "PENDING" | "RESOLVED",
+  resolvedAt = new Date(),
+): { status: "RESOLVED"; resolvedAt: Date } {
+  if (status === "RESOLVED") throw new AppError("OBSERVATION_ALREADY_RESOLVED");
   return { status: "RESOLVED", resolvedAt };
 }

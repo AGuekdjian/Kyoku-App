@@ -5,8 +5,12 @@ const optionalText = z.string().trim().max(200).optional().or(z.literal(""));
 export const studentSchema = z.object({
   firstName: z.string().trim().min(2).max(80),
   lastName: z.string().trim().min(2).max(80),
-  birthDate: z.coerce.date().max(new Date(), "La fecha no puede estar en el futuro"),
-  gender: z.enum(["FEMALE", "MALE", "OTHER", "UNSPECIFIED"]).default("UNSPECIFIED"),
+  birthDate: z.coerce
+    .date()
+    .max(new Date(), "La fecha no puede estar en el futuro"),
+  gender: z
+    .enum(["FEMALE", "MALE", "OTHER", "UNSPECIFIED"])
+    .default("UNSPECIFIED"),
   document: optionalText,
   phone: z.string().trim().min(6).max(30),
   email: z.string().email().optional().or(z.literal("")),

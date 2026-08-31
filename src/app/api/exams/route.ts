@@ -1,2 +1,32 @@
-import{NextRequest,NextResponse}from"next/server";import{z}from"zod";import{connectDb}from"@/lib/db";import{apiError}from"@/lib/http";import{requireSession}from"@/features/auth/session";import{Exam}from"@/models/Exam";
-const schema=z.object({name:z.string().min(2),date:z.coerce.date(),location:z.string().optional(),examiner:z.string().optional(),notes:z.string().optional(),status:z.enum(['DRAFT','SCHEDULED','COMPLETED','CLOSED']).default('DRAFT'),registrations:z.array(z.object({studentId:z.string(),currentGradeId:z.string(),targetGradeId:z.string()})).default([])});export async function GET(){try{await requireSession();await connectDb();return NextResponse.json(await Exam.find({deletedAt:null}).populate('registrations.studentId','firstName lastName').sort({date:-1}).lean())}catch(e){return apiError(e)}}export async function POST(req:NextRequest){try{await requireSession();await connectDb();return NextResponse.json(await Exam.create(schema.parse(await req.json())),{status:201})}catch(e){return apiError(e)}}
+import { NextRequest, NextResponse } from "next/server";
+import { connectDb } from "@/lib/db";
+import { apiError } from "@/lib/http";
+import { requireSession } from "@/features/auth/session";
+import { Exam } from "@/models/Exam";
+import { examInputSchema } from "@/features/exams/schema";
+export async function GET() {
+  try {
+    await requireSession();
+    await connectDb();
+    return NextResponse.json(
+      await Exam.find({ deletedAt: null })
+        .populate("registrations.studentId", "firstName lastName")
+        .sort({ date: -1 })
+        .lean(),
+    );
+  } catch (e) {
+    return apiError(e);
+  }
+}
+export async function POST(req: NextRequest) {
+  try {
+    await requireSession();
+    await connectDb();
+    return NextResponse.json(
+      await Exam.create(examInputSchema.parse(await req.json())),
+      { status: 201 },
+    );
+  } catch (e) {
+    return apiError(e);
+  }
+}

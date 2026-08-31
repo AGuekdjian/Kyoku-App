@@ -7,9 +7,21 @@ export async function GET() {
   try {
     const db = await connectDb();
     await db.connection.db?.admin().ping();
-    return NextResponse.json({ status: "healthy", database: "available", timestamp: new Date().toISOString(), responseTimeMs: Date.now() - started });
+    return NextResponse.json({
+      status: "healthy",
+      database: "available",
+      timestamp: new Date().toISOString(),
+      responseTimeMs: Date.now() - started,
+    });
   } catch (error) {
     logger.error({ err: error }, "Health check database failure");
-    return NextResponse.json({ status: "degraded", database: "unavailable", timestamp: new Date().toISOString() }, { status: 503 });
+    return NextResponse.json(
+      {
+        status: "degraded",
+        database: "unavailable",
+        timestamp: new Date().toISOString(),
+      },
+      { status: 503 },
+    );
   }
 }
