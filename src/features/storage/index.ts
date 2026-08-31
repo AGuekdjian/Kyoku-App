@@ -1,0 +1,1 @@
+import{LocalStorage}from"./local";import type{StorageProvider}from"./provider";export function storage():StorageProvider{const provider=process.env.STORAGE_PROVIDER??'local';if(provider==='local')return new LocalStorage();throw new Error(`Unsupported storage provider: ${provider}`)}

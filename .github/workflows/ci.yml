@@ -17,18 +17,30 @@ jobs:
       - run: npm test
       - run: npm run test:coverage
       - run: npm run build
-        env:
-          MONGODB_URI: mongodb://127.0.0.1:27017/kyoku_ci
-          AUTH_SECRET: ci-only-placeholder-secret-at-least-32-characters
   e2e:
     runs-on: ubuntu-latest
+    services:
+      mongodb:
+        image: mongo:8
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --eval 'db.runCommand({ ping: 1 })'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      MONGODB_URI: mongodb://127.0.0.1:27017/kyoku_dev
+      SEED_ADMIN_EMAIL: admin@kyoku.local
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: 24, cache: npm }
+      - name: Generate isolated test secrets
+        run: |
+          echo "AUTH_SECRET=$(openssl rand -hex 32)" >> "$GITHUB_ENV"
+          echo "SEED_ADMIN_PASSWORD=$(openssl rand -base64 24)" >> "$GITHUB_ENV"
       - run: npm ci
       - run: npx playwright install --with-deps chromium
+      - run: npm run seed
       - run: npm run test:e2e
-        env:
-          MONGODB_URI: mongodb://127.0.0.1:27017/kyoku_ci
-          AUTH_SECRET: ci-only-placeholder-secret-at-least-32-characters

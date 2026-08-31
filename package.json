@@ -2,6 +2,7 @@
   "name": "kyoku",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -14,7 +15,7 @@
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "check": "npm run typecheck && npm run lint && npm test && npm run build",
-    "seed": "tsx scripts/seed.ts"
+    "seed": "node --env-file-if-exists=.env.local --import tsx scripts/seed.ts"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
