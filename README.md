@@ -49,6 +49,14 @@ Las pruebas unitarias priorizan reglas de grado, resultados con observación, ed
 
 Los alumnos no almacenan edad. Las inscripciones a torneo guardan snapshots. Los resultados `PASSED_WITH_OBSERVATION` promueven el grado y crean uno o más pendientes resolubles sin repetir el examen. Las entidades históricas usan soft delete.
 
+La aplicación incluye login sin registro público, roles ADMIN/INSTRUCTOR, alumnos, grados configurables, exámenes y observaciones, actividades, torneos con inscripción masiva y resultados, exportación Excel, biblioteca PDF, usuarios, auditoría, settings y dashboard. Las mutaciones validan con Zod y autorizan en servidor.
+
+El storage local está pensado para Docker/desarrollo. Antes de desplegar carga documental en Vercel debe agregarse otra implementación de `StorageProvider`, porque el filesystem de funciones serverless no es persistente.
+
+### Seed de desarrollo
+
+Definir `SEED_ADMIN_EMAIL` y una `SEED_ADMIN_PASSWORD` de al menos 12 caracteres en `.env.local`, luego ejecutar `npm run seed`. El script se niega a operar en producción o contra una base cuyo nombre no contenga `kyoku_dev`.
+
 ## Git, CI y deployment
 
 Todo desarrollo se realiza en `dev`; `main` representa producción. `.github/workflows/ci.yml` valida typecheck, lint, unit/integration, coverage, build y E2E en pushes y PR hacia `main`.
