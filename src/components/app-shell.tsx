@@ -1,3 +1,59 @@
-import Link from "next/link";import { logout } from "@/features/auth/actions";import type { Session } from "@/features/auth/session";
-const items=[['/','Resumen'],['/students','Alumnos'],['/grades','Grados'],['/exams','Exámenes'],['/activities','Actividades'],['/tournaments','Torneos'],['/documents','Biblioteca']];
-export function AppShell({session,children}:{session:Session;children:React.ReactNode}){return <div className="app-shell"><aside className="sidebar"><Link href="/" className="brand"><span>極</span><div><strong>Kyoku</strong><small>Gestión del dojo</small></div></Link><nav aria-label="Navegación principal">{items.map(([href,label])=><Link href={href} key={href}>{label}</Link>)}{session.role==='ADMIN'&&<><Link href="/audit">Auditoría</Link><Link href="/users">Usuarios</Link><Link href="/settings">Configuración</Link></>}</nav><form action={logout} className="profile"><span>{session.name.slice(0,2).toUpperCase()}</span><div><strong>{session.name}</strong><small>{session.role}</small></div><button className="link-button">Salir</button></form></aside><main>{children}</main></div>}
+import Link from "next/link";
+import { logout } from "@/features/auth/actions";
+import type { Session } from "@/features/auth/session";
+
+const items = [
+  ["/", "Resumen"],
+  ["/students", "Alumnos"],
+  ["/grades", "Grados"],
+  ["/exams", "Exámenes"],
+  ["/activities", "Actividades"],
+  ["/tournaments", "Torneos"],
+  ["/documents", "Biblioteca"],
+];
+
+export function AppShell({
+  session,
+  children,
+}: {
+  session: Session;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="app-shell">
+      <aside className="sidebar">
+        <Link href="/" className="brand">
+          <span>極</span>
+          <div>
+            <strong>Kyoku</strong>
+            <small>Gestión del dojo</small>
+          </div>
+        </Link>
+        <nav aria-label="Navegación principal">
+          {items.map(([href, label]) => (
+            <Link href={href} key={href}>
+              {label}
+            </Link>
+          ))}
+          {session.role === "ADMIN" ? (
+            <>
+              <Link href="/audit">Auditoría</Link>
+              <Link href="/users">Usuarios</Link>
+              <Link href="/settings">Configuración</Link>
+              <Link href="/status">Estado</Link>
+            </>
+          ) : null}
+        </nav>
+        <form action={logout} className="profile">
+          <span>{session.name.slice(0, 2).toUpperCase()}</span>
+          <div>
+            <strong>{session.name}</strong>
+            <small>{session.role}</small>
+          </div>
+          <button className="link-button">Salir</button>
+        </form>
+      </aside>
+      <main>{children}</main>
+    </div>
+  );
+}
