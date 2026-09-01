@@ -606,6 +606,173 @@ th {
   align-items: center;
   gap: 14px;
 }
+.table-subtitle {
+  display: block;
+  margin-top: 4px;
+  color: var(--muted);
+}
+.inline-editor summary {
+  color: var(--primary);
+  cursor: pointer;
+  font-weight: 700;
+}
+.editor-popover {
+  min-width: min(760px, 76vw);
+  padding: 18px 0 4px;
+}
+.resource-form input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+}
+.tournament-card {
+  margin-bottom: 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 18px;
+}
+.tournament-card > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  cursor: pointer;
+}
+.tournament-card > summary div,
+.student-option span,
+.result-row > span {
+  display: grid;
+  gap: 4px;
+}
+.tournament-card small,
+.student-option small,
+.result-row small {
+  color: var(--muted);
+}
+.tournament-manager {
+  display: grid;
+  gap: 20px;
+  padding-top: 22px;
+}
+.registration-section {
+  padding: 18px;
+  border-radius: 10px;
+  background: var(--paper);
+}
+.registration-section h3 {
+  margin: 0 0 16px;
+}
+.registration-toolbar {
+  display: grid;
+  grid-template-columns: 2fr 1fr auto;
+  align-items: end;
+  gap: 12px;
+}
+.registration-toolbar label {
+  display: grid;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 700;
+}
+.registration-toolbar input,
+.registration-toolbar select,
+.result-row input,
+.result-row select {
+  min-width: 0;
+  border: 1px solid #cbd5e1;
+  border-radius: 7px;
+  padding: 10px;
+  background: white;
+}
+.secondary-button {
+  border: 1px solid #93c5fd;
+  background: white;
+  color: var(--primary);
+}
+.student-selection {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  max-height: 360px;
+  overflow: auto;
+  margin-top: 14px;
+}
+.student-option {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+}
+.student-option input {
+  width: 19px;
+  height: 19px;
+  flex: 0 0 auto;
+}
+.registration-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 16px;
+}
+.result-row {
+  display: grid;
+  grid-template-columns:
+    minmax(160px, 1.4fr) minmax(130px, 0.8fr) minmax(160px, 1fr)
+    auto;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+}
+.export-button {
+  margin-top: 18px;
+}
+.empty.compact {
+  padding: 20px;
+}
+.form-message {
+  color: var(--primary);
+  font-weight: 700;
+}
+.exam-registration {
+  display: grid;
+  gap: 12px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--line);
+}
+.exam-registration > div:first-child {
+  display: grid;
+  gap: 4px;
+}
+.exam-registration small {
+  color: var(--muted);
+}
+.exam-registration form {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(130px, 1fr)) auto;
+  gap: 10px;
+}
+.exam-registration input,
+.exam-registration select {
+  min-width: 0;
+  border: 1px solid #cbd5e1;
+  border-radius: 7px;
+  padding: 10px;
+  background: white;
+}
+.observation-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 10px;
+  border-radius: 8px;
+  background: #fff;
+}
 
 @keyframes skeleton-shimmer {
   to {
@@ -688,6 +855,15 @@ th {
   }
   .columns {
     margin-top: 22px;
+  }
+  .registration-toolbar,
+  .student-selection,
+  .result-row,
+  .exam-registration form {
+    grid-template-columns: 1fr;
+  }
+  .editor-popover {
+    min-width: 72vw;
   }
   th:nth-child(4),
   td:nth-child(4) {
