@@ -3,9 +3,7 @@ import { ResourceForm } from "@/components/resource-form";
 import { connectDb } from "@/lib/db";
 import { paginationInput, totalPages } from "@/lib/pagination";
 import { Tournament } from "@/models/Tournament";
-import { Student } from "@/models/Student";
-import { calculateAge } from "@/features/students/domain/age";
-import { TournamentManager } from "./tournament-manager";
+import { TournamentCard } from "./tournament-card";
 
 export const dynamic = "force-dynamic";
 const PAGE_SIZE = 20;
@@ -19,20 +17,21 @@ export default async function Tournaments({
   const params = await searchParams;
   const { page, skip } = paginationInput(params.page, PAGE_SIZE);
   const filter = { deletedAt: null };
-  const [items, total, students] = await Promise.all([
-    Tournament.find(filter)
-      .select("name date location status registrations")
-      .sort({ date: -1 })
-      .skip(skip)
-      .limit(PAGE_SIZE)
-      .lean(),
+  const [items, total] = await Promise.all([
+    Tournament.aggregate([
+      { $match: filter },
+      { $sort: { date: -1 } },
+      { $skip: skip },
+      { $limit: PAGE_SIZE },
+      {
+        $project: {
+          name: 1,
+          date: 1,
+          registrationCount: { $size: { $ifNull: ["$registrations", []] } },
+        },
+      },
+    ]),
     Tournament.countDocuments(filter),
-    Student.find({ active: true, deletedAt: null })
-      .select("firstName lastName birthDate weight height currentGradeId")
-      .populate("currentGradeId", "name type order")
-      .sort({ lastName: 1, firstName: 1 })
-      .limit(500)
-      .lean(),
   ]);
   const pages = totalPages(total, PAGE_SIZE);
   return (
@@ -67,52 +66,13 @@ export default async function Tournaments({
       <section className="panel">
         {items.length ? (
           items.map((item) => (
-            <details className="tournament-card" key={String(item._id)}>
-              <summary>
-                <div>
-                  <strong>{String(item.name)}</strong>
-                  <small>
-                    {new Date(item.date as Date).toLocaleDateString("es-UY")} ·{" "}
-                    {(item.registrations as unknown[]).length} inscriptos
-                  </small>
-                </div>
-                <span>Abrir gestión</span>
-              </summary>
-              <TournamentManager
-                tournamentId={String(item._id)}
-                students={students.map((student) => {
-                  const grade = student.currentGradeId as unknown as {
-                    _id: unknown;
-                    name: unknown;
-                  };
-                  return {
-                    id: String(student._id),
-                    name: `${String(student.lastName)}, ${String(student.firstName)}`,
-                    age: calculateAge(student.birthDate as Date),
-                    weight: student.weight as number | undefined,
-                    height: student.height as number | undefined,
-                    gradeId: String(grade?._id ?? ""),
-                    grade: String(grade?.name ?? "Sin grado"),
-                  };
-                })}
-                registrations={item.registrations.map((registration) => ({
-                  id: String(registration._id),
-                  studentId: String(registration.studentId),
-                  name: String(registration.snapshot?.fullName ?? "Alumno"),
-                  grade: String(
-                    registration.snapshot?.gradeName ?? "Sin grado",
-                  ),
-                  result: registration.result ?? undefined,
-                  resultNotes: registration.resultNotes ?? undefined,
-                }))}
-              />
-              <a
-                className="button export-button"
-                href={`/api/tournaments/${String(item._id)}/export`}
-              >
-                Exportar Excel
-              </a>
-            </details>
+            <TournamentCard
+              key={String(item._id)}
+              id={String(item._id)}
+              name={String(item.name)}
+              date={new Date(item.date as Date).toLocaleDateString("es-UY")}
+              registrationCount={Number(item.registrationCount)}
+            />
           ))
         ) : (
           <p className="empty">No hay torneos registrados.</p>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 
 type StudentOption = {
@@ -30,21 +30,43 @@ const resultOptions = [
   ["OTHER", "Otro"],
 ] as const;
 
-export function TournamentManager({
-  tournamentId,
-  students,
-  registrations,
-}: {
-  tournamentId: string;
-  students: StudentOption[];
-  registrations: Registration[];
-}) {
+async function getManagement(tournamentId: string, signal?: AbortSignal) {
+  const response = await fetch(
+    `/api/tournaments/${tournamentId}/registrations`,
+    { signal },
+  );
+  if (!response.ok) throw new Error("load failed");
+  return response.json() as Promise<{
+    students: StudentOption[];
+    registrations: Registration[];
+  }>;
+}
+
+export function TournamentManager({ tournamentId }: { tournamentId: string }) {
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [grade, setGrade] = useState("");
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [pending, setPending] = useState(false);
   const [message, setMessage] = useState("");
+  const [students, setStudents] = useState<StudentOption[]>([]);
+  const [registrations, setRegistrations] = useState<Registration[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    getManagement(tournamentId, controller.signal)
+      .then((data) => {
+        setStudents(data.students);
+        setRegistrations(data.registrations);
+      })
+      .catch((error: Error) => {
+        if (error.name !== "AbortError")
+          setMessage("No se pudo cargar la gestión del torneo.");
+      })
+      .finally(() => setLoading(false));
+    return () => controller.abort();
+  }, [tournamentId]);
   const registered = useMemo(
     () => new Set(registrations.map((item) => item.studentId)),
     [registrations],
@@ -85,6 +107,9 @@ export function TournamentManager({
     }
     setSelected(new Set());
     setMessage("Alumnos inscriptos correctamente.");
+    const data = await getManagement(tournamentId);
+    setStudents(data.students);
+    setRegistrations(data.registrations);
     router.refresh();
   }
 
@@ -106,118 +131,133 @@ export function TournamentManager({
       response.ok ? "Resultado guardado." : "No se pudo guardar el resultado.",
     );
     if (response.ok) router.refresh();
+    if (response.ok) {
+      const refreshed = await getManagement(tournamentId);
+      setRegistrations(refreshed.registrations);
+    }
   }
 
   return (
     <div className="tournament-manager">
-      <section className="registration-section">
-        <h3>Inscribir alumnos</h3>
-        <div className="registration-toolbar">
-          <label>
-            Buscar
-            <input
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Nombre o apellido"
-            />
-          </label>
-          <label>
-            Grado
-            <select
-              value={grade}
-              onChange={(event) => setGrade(event.target.value)}
+      {loading ? (
+        <div className="manager-skeleton" aria-label="Cargando gestión">
+          <span />
+          <span />
+          <span />
+        </div>
+      ) : null}
+      {!loading ? (
+        <>
+          <section className="registration-section">
+            <h3>Inscribir alumnos</h3>
+            <div className="registration-toolbar">
+              <label>
+                Buscar
+                <input
+                  value={query}
+                  onChange={(event) => setQuery(event.target.value)}
+                  placeholder="Nombre o apellido"
+                />
+              </label>
+              <label>
+                Grado
+                <select
+                  value={grade}
+                  onChange={(event) => setGrade(event.target.value)}
+                >
+                  <option value="">Todos</option>
+                  {grades.map((item) => (
+                    <option key={item}>{item}</option>
+                  ))}
+                </select>
+              </label>
+              <button
+                type="button"
+                className="secondary-button"
+                onClick={() =>
+                  setSelected(new Set(visible.map((student) => student.id)))
+                }
+              >
+                Seleccionar visibles
+              </button>
+            </div>
+            <div
+              className="student-selection"
+              role="group"
+              aria-label="Alumnos disponibles"
             >
-              <option value="">Todos</option>
-              {grades.map((item) => (
-                <option key={item}>{item}</option>
+              {visible.map((student) => (
+                <label key={student.id} className="student-option">
+                  <input
+                    type="checkbox"
+                    checked={selected.has(student.id)}
+                    onChange={() => toggle(student.id)}
+                  />
+                  <span>
+                    <strong>{student.name}</strong>
+                    <small>
+                      {student.age} años · {student.weight ?? "—"} kg ·{" "}
+                      {student.height ?? "—"} cm · {student.grade}
+                    </small>
+                  </span>
+                </label>
               ))}
-            </select>
-          </label>
-          <button
-            type="button"
-            className="secondary-button"
-            onClick={() =>
-              setSelected(new Set(visible.map((student) => student.id)))
-            }
-          >
-            Seleccionar visibles
-          </button>
-        </div>
-        <div
-          className="student-selection"
-          role="group"
-          aria-label="Alumnos disponibles"
-        >
-          {visible.map((student) => (
-            <label key={student.id} className="student-option">
-              <input
-                type="checkbox"
-                checked={selected.has(student.id)}
-                onChange={() => toggle(student.id)}
-              />
-              <span>
-                <strong>{student.name}</strong>
-                <small>
-                  {student.age} años · {student.weight ?? "—"} kg ·{" "}
-                  {student.height ?? "—"} cm · {student.grade}
-                </small>
-              </span>
-            </label>
-          ))}
-          {!visible.length ? (
-            <p className="empty compact">No hay alumnos disponibles.</p>
-          ) : null}
-        </div>
-        <div className="registration-actions">
-          <strong>{selected.size} seleccionados</strong>
-          <button
-            type="button"
-            disabled={!selected.size || pending}
-            onClick={register}
-          >
-            {pending ? "Inscribiendo…" : "Inscribir seleccionados"}
-          </button>
-        </div>
-      </section>
+              {!visible.length ? (
+                <p className="empty compact">No hay alumnos disponibles.</p>
+              ) : null}
+            </div>
+            <div className="registration-actions">
+              <strong>{selected.size} seleccionados</strong>
+              <button
+                type="button"
+                disabled={!selected.size || pending}
+                onClick={register}
+              >
+                {pending ? "Inscribiendo…" : "Inscribir seleccionados"}
+              </button>
+            </div>
+          </section>
 
-      <section className="registration-section">
-        <h3>Inscriptos ({registrations.length})</h3>
-        {registrations.map((registration) => (
-          <form
-            className="result-row"
-            key={registration.id}
-            onSubmit={(event) => saveResult(event, registration.id)}
-          >
-            <span>
-              <strong>{registration.name}</strong>
-              <small>{registration.grade}</small>
-            </span>
-            <select
-              name="result"
-              defaultValue={registration.result ?? "PARTICIPATED"}
-            >
-              {resultOptions.map(([value, label]) => (
-                <option value={value} key={value}>
-                  {label}
-                </option>
-              ))}
-            </select>
-            <input
-              name="resultNotes"
-              defaultValue={registration.resultNotes}
-              placeholder="Detalle opcional"
-            />
-            <button>Guardar</button>
-          </form>
-        ))}
-        {!registrations.length ? (
-          <p className="empty compact">Todavía no hay inscriptos.</p>
-        ) : null}
-      </section>
-      {message ? (
-        <p className="form-message" role="status">
-          {message}
-        </p>
+          <section className="registration-section">
+            <h3>Inscriptos ({registrations.length})</h3>
+            {registrations.map((registration) => (
+              <form
+                className="result-row"
+                key={registration.id}
+                onSubmit={(event) => saveResult(event, registration.id)}
+              >
+                <span>
+                  <strong>{registration.name}</strong>
+                  <small>{registration.grade}</small>
+                </span>
+                <select
+                  name="result"
+                  defaultValue={registration.result ?? "PARTICIPATED"}
+                >
+                  {resultOptions.map(([value, label]) => (
+                    <option value={value} key={value}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
+                <input
+                  name="resultNotes"
+                  defaultValue={registration.resultNotes}
+                  placeholder="Detalle opcional"
+                />
+                <button>Guardar</button>
+              </form>
+            ))}
+            {!registrations.length ? (
+              <p className="empty compact">Todavía no hay inscriptos.</p>
+            ) : null}
+          </section>
+          {message ? (
+            <p className="form-message" role="status">
+              {message}
+            </p>
+          ) : null}
+        </>
       ) : null}
     </div>
   );

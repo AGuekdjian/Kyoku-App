@@ -611,14 +611,78 @@ th {
   margin-top: 4px;
   color: var(--muted);
 }
-.inline-editor summary {
+.table-action {
   color: var(--primary);
   cursor: pointer;
   font-weight: 700;
+  padding: 7px 12px;
+  border: 1px solid #bfdbfe;
+  background: var(--primary-soft);
 }
-.editor-popover {
-  min-width: min(760px, 76vw);
-  padding: 18px 0 4px;
+.student-dialog {
+  width: min(880px, calc(100vw - 32px));
+  max-height: calc(100vh - 32px);
+  overflow: auto;
+  padding: 28px;
+  border: 0;
+  border-radius: 18px;
+  box-shadow: 0 30px 80px rgb(15 23 42 / 24%);
+  color: var(--ink);
+}
+.student-dialog::backdrop {
+  background: rgb(15 23 42 / 48%);
+  backdrop-filter: blur(4px);
+}
+.dialog-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--line);
+}
+.dialog-heading h2,
+.dialog-heading p {
+  margin: 0;
+}
+.dialog-heading h2 {
+  margin: 4px 0 6px;
+  font-size: clamp(24px, 4vw, 34px);
+}
+.dialog-heading > div > p:last-child {
+  color: var(--muted);
+}
+.dialog-close {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: 50%;
+  background: #eff6ff;
+  color: var(--primary);
+  font-size: 26px;
+  line-height: 1;
+}
+.student-dialog .resource-form > button {
+  grid-column: 1 / -1;
+  min-height: 46px;
+}
+.manager-skeleton {
+  display: grid;
+  gap: 12px;
+  padding-top: 22px;
+}
+.manager-skeleton span {
+  display: block;
+  height: 64px;
+  border-radius: 10px;
+  background: linear-gradient(90deg, #eff6ff 25%, #dbeafe 50%, #eff6ff 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+}
+@keyframes shimmer {
+  to {
+    background-position: -200% 0;
+  }
 }
 .resource-form input[type="checkbox"] {
   width: 20px;
@@ -862,8 +926,11 @@ th {
   .exam-registration form {
     grid-template-columns: 1fr;
   }
-  .editor-popover {
-    min-width: 72vw;
+  .student-dialog {
+    padding: 20px;
+  }
+  .student-dialog .resource-form {
+    grid-template-columns: 1fr;
   }
   th:nth-child(4),
   td:nth-child(4) {

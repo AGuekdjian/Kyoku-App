@@ -86,12 +86,13 @@ test("creates and edits a student, then registers them in a tournament", async (
     page.getByRole("cell", { name: new RegExp(firstName) }),
   ).toBeVisible();
   const studentRow = page.getByRole("row").filter({ hasText: firstName });
-  await studentRow.getByText("Editar").click();
-  await expect(studentRow.getByLabel("Sociedad médica")).toHaveValue(
+  await studentRow.getByRole("button", { name: "Editar", exact: true }).click();
+  const editor = page.getByRole("dialog");
+  await expect(editor.getByLabel("Sociedad médica")).toHaveValue(
     "Sociedad de prueba",
   );
-  await studentRow.getByLabel("Teléfono", { exact: true }).fill("098000000");
-  await studentRow.getByRole("button", { name: "Guardar cambios" }).click();
+  await editor.getByLabel("Teléfono", { exact: true }).fill("098000000");
+  await editor.getByRole("button", { name: "Guardar cambios" }).click();
   await expect(studentRow).toContainText("098000000");
 
   await page.goto("/tournaments");

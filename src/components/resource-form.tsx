@@ -31,11 +31,13 @@ export function ResourceForm({
   fields,
   submitLabel = "Crear",
   method = "POST",
+  onSuccess,
 }: {
   endpoint: string;
   fields: Field[];
   submitLabel?: string;
   method?: "POST" | "PATCH";
+  onSuccess?: () => void;
 }) {
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
@@ -57,6 +59,7 @@ export function ResourceForm({
         return;
       }
       form.reset();
+      onSuccess?.();
       router.refresh();
     } catch {
       setError("No se pudo conectar. Intentá nuevamente.");

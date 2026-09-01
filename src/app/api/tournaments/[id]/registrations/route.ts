@@ -9,6 +9,59 @@ import { Student } from "@/models/Student";
 import { Grade } from "@/models/Grade";
 import { audit } from "@/features/audit/service";
 import { AppError } from "@/lib/app-error";
+import { calculateAge } from "@/features/students/domain/age";
+
+export async function GET(
+  _: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  try {
+    await requireSession();
+    await connectDb();
+    const { id } = await params;
+    const [tournament, students] = await Promise.all([
+      Tournament.findOne({ _id: id, deletedAt: null })
+        .select("date registrations")
+        .lean(),
+      Student.find({ active: true, deletedAt: null })
+        .select("firstName lastName birthDate weight height currentGradeId")
+        .sort({ lastName: 1, firstName: 1 })
+        .limit(500)
+        .lean(),
+    ]);
+    if (!tournament) throw new AppError("NOT_FOUND");
+    const grades = await Grade.find({
+      _id: { $in: students.map((student) => student.currentGradeId) },
+    })
+      .select("name")
+      .lean();
+    const gradeNames = new Map(
+      grades.map((grade) => [String(grade._id), String(grade.name)]),
+    );
+    return NextResponse.json({
+      students: students.map((student) => ({
+        id: String(student._id),
+        name: `${String(student.lastName)}, ${String(student.firstName)}`,
+        age: calculateAge(student.birthDate as Date),
+        weight: student.weight,
+        height: student.height,
+        gradeId: String(student.currentGradeId),
+        grade: gradeNames.get(String(student.currentGradeId)) ?? "Sin grado",
+      })),
+      registrations: tournament.registrations.map((registration) => ({
+        id: String(registration._id),
+        studentId: String(registration.studentId),
+        name: String(registration.snapshot?.fullName ?? "Alumno"),
+        grade: String(registration.snapshot?.gradeName ?? "Sin grado"),
+        result: registration.result,
+        resultNotes: registration.resultNotes,
+      })),
+    });
+  } catch (error) {
+    return apiError(error);
+  }
+}
+
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
