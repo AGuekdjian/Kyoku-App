@@ -9,14 +9,18 @@ export type Field = {
   type?: string;
   required?: boolean;
   options?: { value: string; label: string }[];
+  defaultValue?: string | number | boolean;
 };
 
-function formPayload(form: HTMLFormElement, fields: Field[]) {
+export function formPayload(form: HTMLFormElement, fields: Field[]) {
   const formData = new FormData(form);
   const data: Record<string, unknown> = Object.fromEntries(formData);
   for (const field of fields) {
-    if (field.type === "number" && data[field.name] !== "")
-      data[field.name] = Number(data[field.name]);
+    if (data[field.name] === "" && !field.required) {
+      delete data[field.name];
+      continue;
+    }
+    if (field.type === "number") data[field.name] = Number(data[field.name]);
     if (field.type === "checkbox") data[field.name] = formData.has(field.name);
   }
   return data;
@@ -26,10 +30,12 @@ export function ResourceForm({
   endpoint,
   fields,
   submitLabel = "Crear",
+  method = "POST",
 }: {
   endpoint: string;
   fields: Field[];
   submitLabel?: string;
+  method?: "POST" | "PATCH";
 }) {
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
@@ -42,7 +48,7 @@ export function ResourceForm({
     setError("");
     try {
       const response = await fetch(endpoint, {
-        method: "POST",
+        method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formPayload(form, fields)),
       });
@@ -65,7 +71,11 @@ export function ResourceForm({
         <label key={field.name}>
           {field.label}
           {field.options ? (
-            <select name={field.name} required={field.required}>
+            <select
+              name={field.name}
+              required={field.required}
+              defaultValue={String(field.defaultValue ?? "")}
+            >
               {field.options.map((option) => (
                 <option value={option.value} key={option.value}>
                   {option.label}
@@ -77,6 +87,16 @@ export function ResourceForm({
               name={field.name}
               type={field.type ?? "text"}
               required={field.required}
+              defaultValue={
+                typeof field.defaultValue === "boolean"
+                  ? undefined
+                  : field.defaultValue
+              }
+              defaultChecked={
+                typeof field.defaultValue === "boolean"
+                  ? field.defaultValue
+                  : undefined
+              }
             />
           )}
         </label>

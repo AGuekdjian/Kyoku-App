@@ -1,6 +1,7 @@
 import { connectDb } from "@/lib/db";
 import { Grade } from "@/models/Grade";
 import { ResourceForm } from "@/components/resource-form";
+import { formatGradeRank } from "@/features/grades/format";
 export const dynamic = "force-dynamic";
 export default async function Grades() {
   await connectDb();
@@ -44,7 +45,11 @@ export default async function Grades() {
               <div>
                 <strong>{String(g.name)}</strong>
                 <small>
-                  {String(g.type)} · orden {String(g.order)}
+                  {formatGradeRank(
+                    String(g.type),
+                    Number(g.order),
+                    String(g.name),
+                  )}
                 </small>
               </div>
             </article>

@@ -15,6 +15,7 @@ export const studentSchema = z.object({
   phone: z.string().trim().min(6).max(30),
   email: z.string().email().optional().or(z.literal("")),
   address: optionalText,
+  medicalProvider: optionalText,
   guardianName: optionalText,
   guardianPhone: optionalText,
   emergencyContact: z.string().trim().min(3).max(200),

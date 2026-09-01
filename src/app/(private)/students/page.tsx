@@ -1,5 +1,6 @@
 import { PaginationNav } from "@/components/pagination-nav";
-import { ResourceForm } from "@/components/resource-form";
+import { ResourceForm, type Field } from "@/components/resource-form";
+import { formatGradeRank } from "@/features/grades/format";
 import { calculateAge } from "@/features/students/domain/age";
 import { connectDb } from "@/lib/db";
 import { paginationInput, totalPages } from "@/lib/pagination";
@@ -15,6 +16,142 @@ type SearchParams = Promise<{
   grade?: string;
   page?: string;
 }>;
+
+type GradeOption = {
+  _id: unknown;
+  name: unknown;
+  type: unknown;
+  order: unknown;
+};
+
+function dateInput(value: unknown) {
+  return value ? new Date(value as Date).toISOString().slice(0, 10) : "";
+}
+
+function studentFields(
+  grades: GradeOption[],
+  student?: Record<string, unknown>,
+): Field[] {
+  return [
+    {
+      name: "firstName",
+      label: "Nombre",
+      required: true,
+      defaultValue: String(student?.firstName ?? ""),
+    },
+    {
+      name: "lastName",
+      label: "Apellido",
+      required: true,
+      defaultValue: String(student?.lastName ?? ""),
+    },
+    {
+      name: "birthDate",
+      label: "Fecha de nacimiento",
+      type: "date",
+      required: true,
+      defaultValue: dateInput(student?.birthDate),
+    },
+    {
+      name: "gender",
+      label: "Sexo/género competitivo",
+      options: [
+        { value: "UNSPECIFIED", label: "Sin especificar" },
+        { value: "FEMALE", label: "Femenino" },
+        { value: "MALE", label: "Masculino" },
+        { value: "OTHER", label: "Otro" },
+      ],
+      defaultValue: String(student?.gender ?? "UNSPECIFIED"),
+    },
+    {
+      name: "document",
+      label: "Documento",
+      defaultValue: String(student?.document ?? ""),
+    },
+    {
+      name: "medicalProvider",
+      label: "Sociedad médica",
+      defaultValue: String(student?.medicalProvider ?? ""),
+    },
+    {
+      name: "phone",
+      label: "Teléfono",
+      required: true,
+      defaultValue: String(student?.phone ?? ""),
+    },
+    {
+      name: "email",
+      label: "Email",
+      type: "email",
+      defaultValue: String(student?.email ?? ""),
+    },
+    {
+      name: "address",
+      label: "Dirección",
+      defaultValue: String(student?.address ?? ""),
+    },
+    {
+      name: "guardianName",
+      label: "Responsable/tutor",
+      defaultValue: String(student?.guardianName ?? ""),
+    },
+    {
+      name: "guardianPhone",
+      label: "Teléfono del responsable",
+      defaultValue: String(student?.guardianPhone ?? ""),
+    },
+    {
+      name: "emergencyContact",
+      label: "Contacto de emergencia",
+      required: true,
+      defaultValue: String(student?.emergencyContact ?? ""),
+    },
+    {
+      name: "joinedAt",
+      label: "Fecha de ingreso",
+      type: "date",
+      required: true,
+      defaultValue: dateInput(student?.joinedAt),
+    },
+    {
+      name: "currentGradeId",
+      label: "Grado",
+      required: true,
+      defaultValue: String(student?.currentGradeId ?? ""),
+      options: grades.map((grade) => ({
+        value: String(grade._id),
+        label: `${String(grade.name)} · ${formatGradeRank(String(grade.type), Number(grade.order), String(grade.name))}`,
+      })),
+    },
+    {
+      name: "weight",
+      label: "Peso (kg)",
+      type: "number",
+      defaultValue: student?.weight == null ? "" : Number(student.weight),
+    },
+    {
+      name: "height",
+      label: "Altura (cm)",
+      type: "number",
+      defaultValue: student?.height == null ? "" : Number(student.height),
+    },
+    {
+      name: "notes",
+      label: "Observaciones",
+      defaultValue: String(student?.notes ?? ""),
+    },
+    ...(student
+      ? [
+          {
+            name: "active",
+            label: "Alumno activo",
+            type: "checkbox",
+            defaultValue: Boolean(student.active),
+          } satisfies Field,
+        ]
+      : []),
+  ];
+}
 
 export default async function StudentsPage({
   searchParams,
@@ -32,8 +169,10 @@ export default async function StudentsPage({
 
   const [students, total, grades] = await Promise.all([
     Student.find(filter)
-      .select("firstName lastName birthDate phone active currentGradeId")
-      .populate("currentGradeId", "name")
+      .select(
+        "firstName lastName birthDate gender document medicalProvider phone email address guardianName guardianPhone emergencyContact joinedAt active weight height currentGradeId notes",
+      )
+      .populate("currentGradeId", "name type order")
       .sort(
         params.q
           ? { score: { $meta: "textScore" } }
@@ -44,7 +183,7 @@ export default async function StudentsPage({
       .lean(),
     Student.countDocuments(filter),
     Grade.find({ active: true, deletedAt: null })
-      .select("name")
+      .select("name type order")
       .sort({ order: 1 })
       .lean(),
   ]);
@@ -97,39 +236,7 @@ export default async function StudentsPage({
         <summary>Nuevo alumno</summary>
         <ResourceForm
           endpoint="/api/students"
-          fields={[
-            { name: "firstName", label: "Nombre", required: true },
-            { name: "lastName", label: "Apellido", required: true },
-            {
-              name: "birthDate",
-              label: "Fecha de nacimiento",
-              type: "date",
-              required: true,
-            },
-            { name: "phone", label: "Teléfono", required: true },
-            {
-              name: "emergencyContact",
-              label: "Contacto de emergencia",
-              required: true,
-            },
-            {
-              name: "joinedAt",
-              label: "Fecha de ingreso",
-              type: "date",
-              required: true,
-            },
-            {
-              name: "currentGradeId",
-              label: "Grado",
-              required: true,
-              options: grades.map((grade) => ({
-                value: String(grade._id),
-                label: String(grade.name),
-              })),
-            },
-            { name: "weight", label: "Peso (kg)", type: "number" },
-            { name: "height", label: "Altura (cm)", type: "number" },
-          ]}
+          fields={studentFields(grades as GradeOption[])}
         />
       </details>
 
@@ -143,13 +250,21 @@ export default async function StudentsPage({
                 <th>Grado</th>
                 <th>Contacto</th>
                 <th>Estado</th>
+                <th>Acciones</th>
               </tr>
             </thead>
             <tbody>
               {students.map((student) => {
                 const grade = student.currentGradeId as unknown as {
                   name?: string;
+                  type?: string;
+                  order?: number;
+                  _id?: unknown;
                 } | null;
+                const editable = {
+                  ...(student as unknown as Record<string, unknown>),
+                  currentGradeId: grade?._id,
+                };
                 return (
                   <tr key={String(student._id)}>
                     <td>
@@ -158,12 +273,35 @@ export default async function StudentsPage({
                       </strong>
                     </td>
                     <td>{calculateAge(student.birthDate as Date)}</td>
-                    <td>{grade?.name ?? "—"}</td>
+                    <td>
+                      {grade?.name ?? "—"}
+                      {grade?.type && grade.order != null ? (
+                        <small className="table-subtitle">
+                          {formatGradeRank(grade.type, grade.order, grade.name)}
+                        </small>
+                      ) : null}
+                    </td>
                     <td>{String(student.phone)}</td>
                     <td>
                       <span className="badge">
                         {student.active ? "Activo" : "Inactivo"}
                       </span>
+                    </td>
+                    <td>
+                      <details className="inline-editor">
+                        <summary>Editar</summary>
+                        <div className="editor-popover">
+                          <ResourceForm
+                            endpoint={`/api/students/${String(student._id)}`}
+                            method="PATCH"
+                            submitLabel="Guardar cambios"
+                            fields={studentFields(
+                              grades as GradeOption[],
+                              editable,
+                            )}
+                          />
+                        </div>
+                      </details>
                     </td>
                   </tr>
                 );

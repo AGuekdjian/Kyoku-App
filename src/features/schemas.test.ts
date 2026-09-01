@@ -5,6 +5,7 @@ import { gradeInputSchema } from "./grades/schema";
 import { settingsInputSchema } from "./settings/schema";
 import { tournamentInputSchema } from "./tournaments/schema";
 import { userInputSchema } from "./users/schema";
+import { studentSchema } from "./students/schemas/student";
 
 describe("feature input contracts", () => {
   it("keeps defaults and date coercion stable", () => {
@@ -63,5 +64,21 @@ describe("feature input contracts", () => {
     expect(
       userInputSchema.safeParse({ ...user, password: "12345678" }).success,
     ).toBe(true);
+  });
+
+  it("accepts the student's medical provider without requiring measurements", () => {
+    const parsed = studentSchema.parse({
+      firstName: "Ana",
+      lastName: "Pérez",
+      birthDate: "2012-05-10",
+      phone: "099123456",
+      emergencyContact: "Tutor 099654321",
+      joinedAt: "2026-09-01",
+      currentGradeId: "grade-id",
+      medicalProvider: "Sociedad médica",
+    });
+
+    expect(parsed.medicalProvider).toBe("Sociedad médica");
+    expect(parsed.weight).toBeUndefined();
   });
 });

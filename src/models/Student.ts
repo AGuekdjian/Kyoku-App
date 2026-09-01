@@ -16,6 +16,7 @@ const studentSchema = new Schema(
     phone: { type: String, required: true },
     email: String,
     address: String,
+    medicalProvider: String,
     guardianName: String,
     guardianPhone: String,
     emergencyContact: { type: String, required: true },
