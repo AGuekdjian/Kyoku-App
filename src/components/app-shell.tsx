@@ -23,7 +23,7 @@ export function AppShell({
   return (
     <div className="app-shell">
       <aside className="sidebar">
-        <Link href="/" className="brand">
+        <Link href="/" className="brand" prefetch={false}>
           <span>{APP_INITIALS}</span>
           <div>
             <strong>{APP_NAME}</strong>
@@ -32,16 +32,24 @@ export function AppShell({
         </Link>
         <nav aria-label="Navegación principal">
           {items.map(([href, label]) => (
-            <Link href={href} key={href}>
+            <Link href={href} key={href} prefetch={false}>
               {label}
             </Link>
           ))}
           {session.role === "ADMIN" ? (
             <>
-              <Link href="/audit">Auditoría</Link>
-              <Link href="/users">Usuarios</Link>
-              <Link href="/settings">Configuración</Link>
-              <Link href="/status">Estado</Link>
+              <Link href="/audit" prefetch={false}>
+                Auditoría
+              </Link>
+              <Link href="/users" prefetch={false}>
+                Usuarios
+              </Link>
+              <Link href="/settings" prefetch={false}>
+                Configuración
+              </Link>
+              <Link href="/status" prefetch={false}>
+                Estado
+              </Link>
             </>
           ) : null}
         </nav>
