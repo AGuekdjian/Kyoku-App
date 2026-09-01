@@ -49,4 +49,19 @@ describe("feature input contracts", () => {
       }).success,
     ).toBe(false);
   });
+
+  it("accepts passwords from eight characters", () => {
+    const user = {
+      name: "Admin",
+      email: "admin@example.com",
+      role: "ADMIN" as const,
+    };
+
+    expect(
+      userInputSchema.safeParse({ ...user, password: "1234567" }).success,
+    ).toBe(false);
+    expect(
+      userInputSchema.safeParse({ ...user, password: "12345678" }).success,
+    ).toBe(true);
+  });
 });
