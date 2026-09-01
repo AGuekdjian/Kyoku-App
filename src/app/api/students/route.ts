@@ -18,7 +18,7 @@ export async function GET(req: NextRequest) {
     const [items, total] = await Promise.all([
       Student.find(filter)
         .select(
-          "firstName lastName birthDate phone active weight weightUpdatedAt height currentGradeId",
+          "firstName lastName birthDate phone medicalProvider active weight weightUpdatedAt height currentGradeId",
         )
         .populate("currentGradeId", "name beltColor")
         .sort({ lastName: 1, firstName: 1 })
