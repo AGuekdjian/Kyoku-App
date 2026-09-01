@@ -27,7 +27,7 @@ async function main() {
   const admin = await User.findOneAndUpdate(
     { email: email.toLowerCase() },
     {
-      name: "Administrador Kyoku",
+      name: "Administrador DojoNexo",
       email: email.toLowerCase(),
       passwordHash,
       role: "ADMIN",
@@ -89,7 +89,7 @@ async function main() {
 
   await Settings.findOneAndUpdate(
     { key: "dojo" },
-    { dojoName: "Kyoku", weightStaleDays: 90 },
+    { dojoName: "Mi dojo", weightStaleDays: 90 },
     { upsert: true },
   );
   await Tournament.findOneAndUpdate(

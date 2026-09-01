@@ -1,4 +1,4 @@
-# Kyoku App
+# DojoNexo
 
 Aplicación full-stack para la gestión integral de un dojo de karate. Usa un monolito modular con Next.js App Router, TypeScript estricto, MongoDB/Mongoose y componentes de servidor por defecto.
 
@@ -24,7 +24,7 @@ Con Docker:
 .\scripts\dev-down.ps1
 ```
 
-`dev-down.ps1` elimina solamente contenedores, redes y volúmenes del Compose de Kyoku. No modifica Atlas ni ejecuta prune global.
+`dev-down.ps1` elimina solamente contenedores, redes y volúmenes del Compose de DojoNexo. No modifica Atlas ni ejecuta prune global.
 
 ## Calidad
 
@@ -61,7 +61,7 @@ Definir `SEED_ADMIN_EMAIL` y una `SEED_ADMIN_PASSWORD` de al menos 12 caracteres
 
 Todo desarrollo se realiza en `dev`; `main` representa producción. `.github/workflows/ci.yml` valida typecheck, lint, unit/integration, coverage, build y E2E en pushes y PR hacia `main`.
 
-Para desplegar, importar `AGuekdjian/Kyoku-App` en Vercel, seleccionar Next.js, configurar las variables de `.env.example` con valores de producción y usar `main` como rama productiva. Vercel gestiona previews de PR sin guardar tokens en el repositorio.
+Para desplegar, importar el repositorio en Vercel, seleccionar Next.js, configurar las variables de `.env.example` con valores de producción y usar `main` como rama productiva. Vercel gestiona previews de PR sin guardar tokens en el repositorio.
 
 ## Solución de problemas
 

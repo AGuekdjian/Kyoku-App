@@ -1,4 +1,5 @@
 import ExcelJS from "exceljs";
+import { APP_NAME } from "@/lib/brand";
 export type ExportRegistration = {
   snapshot: {
     fullName: string;
@@ -16,7 +17,7 @@ export async function tournamentWorkbook(input: {
   registrations: ExportRegistration[];
 }) {
   const book = new ExcelJS.Workbook();
-  book.creator = "Kyoku App";
+  book.creator = APP_NAME;
   const sheet = book.addWorksheet("Inscripciones", {
     pageSetup: {
       orientation: "landscape",

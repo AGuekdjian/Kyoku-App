@@ -1,5 +1,6 @@
 import packageJson from "../../../../package.json";
 import { requireAdminPage } from "@/features/auth/require-admin-page";
+import { APP_NAME } from "@/lib/brand";
 import { connectDb } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
@@ -62,7 +63,9 @@ export default async function StatusPage() {
           />
           <div>
             <p className="muted">Aplicación</p>
-            <h2>Kyoku {packageJson.version}</h2>
+            <h2>
+              {APP_NAME} {packageJson.version}
+            </h2>
             <small>Next.js {packageJson.dependencies.next}</small>
           </div>
         </article>

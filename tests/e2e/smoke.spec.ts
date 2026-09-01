@@ -8,6 +8,9 @@ async function loginAsAdmin(page: Page) {
 
   await page.goto("/");
   await expect(page).toHaveURL(/login/);
+  await expect(
+    page.getByRole("heading", { name: "Ingresá a DojoNexo" }),
+  ).toBeVisible();
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Contraseña").fill(password);
   await page.getByRole("button", { name: "Ingresar" }).click();
@@ -19,6 +22,7 @@ test("authenticates and renders the private dashboard", async ({ page }) => {
   await expect(
     page.getByRole("navigation", { name: "Navegación principal" }),
   ).toBeVisible();
+  await expect(page.getByRole("link", { name: /DojoNexo/ })).toBeVisible();
 });
 
 test("shows operational status without exposing secrets", async ({ page }) => {

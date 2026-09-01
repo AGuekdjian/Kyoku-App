@@ -22,7 +22,7 @@ export async function GET(
     ]);
     if (!tournament) throw new AppError("NOT_FOUND");
     const data = await tournamentWorkbook({
-      dojoName: String(settings?.dojoName ?? "Kyoku"),
+      dojoName: String(settings?.dojoName ?? "Mi dojo"),
       tournamentName: String(tournament.name),
       date: tournament.date as Date,
       registrations:
