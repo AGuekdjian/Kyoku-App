@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { logout } from "@/features/auth/actions";
 import type { Session } from "@/features/auth/session";
+import { APP_DESCRIPTION, APP_INITIALS, APP_NAME } from "@/lib/brand";
 
 const items = [
   ["/", "Resumen"],
@@ -23,10 +24,10 @@ export function AppShell({
     <div className="app-shell">
       <aside className="sidebar">
         <Link href="/" className="brand">
-          <span>極</span>
+          <span>{APP_INITIALS}</span>
           <div>
-            <strong>Kyoku</strong>
-            <small>Gestión del dojo</small>
+            <strong>{APP_NAME}</strong>
+            <small>{APP_DESCRIPTION}</small>
           </div>
         </Link>
         <nav aria-label="Navegación principal">

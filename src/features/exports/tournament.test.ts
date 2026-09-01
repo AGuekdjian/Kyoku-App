@@ -5,7 +5,7 @@ import { tournamentWorkbook } from "./tournament";
 describe("tournament workbook", () => {
   it("creates a blue, styled xlsx with historical values", async () => {
     const buffer = await tournamentWorkbook({
-      dojoName: "Kyoku",
+      dojoName: "Dojo Central",
       tournamentName: "Copa",
       date: new Date("2026-10-01"),
       registrations: [

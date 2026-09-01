@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { APP_NAME } from "@/lib/brand";
 
 const styles = {
   body: {
@@ -47,10 +48,10 @@ export default function GlobalError({
   return (
     <html lang="es">
       <body style={styles.body}>
-        <title>Error | Kyoku</title>
+        <title>Error | {APP_NAME}</title>
         <main style={styles.main}>
           <section style={styles.card} role="alert">
-            <p style={{ color: "#1d4ed8", fontWeight: 700 }}>KYOKU</p>
+            <p style={{ color: "#1d4ed8", fontWeight: 700 }}>{APP_NAME}</p>
             <h1>La aplicación encontró un problema</h1>
             <p>
               Reintentá la carga. Tus datos no se muestran en esta pantalla.

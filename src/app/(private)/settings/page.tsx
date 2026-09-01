@@ -23,7 +23,7 @@ export default async function SettingsPage() {
         <dl className="settings-list">
           <div>
             <dt>Nombre del dojo</dt>
-            <dd>{String(settings?.dojoName ?? "Kyoku")}</dd>
+            <dd>{String(settings?.dojoName ?? "Mi dojo")}</dd>
           </div>
           <div>
             <dt>Peso desactualizado</dt>

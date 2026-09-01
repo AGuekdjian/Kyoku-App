@@ -4,7 +4,7 @@ const { Schema, model, models } = mongoose;
 const schema = new Schema(
   {
     key: { type: String, default: "dojo", unique: true },
-    dojoName: { type: String, default: "Kyoku" },
+    dojoName: { type: String, default: "Mi dojo" },
     weightStaleDays: { type: Number, default: 90, min: 1, max: 730 },
     logoStorageKey: String,
   },

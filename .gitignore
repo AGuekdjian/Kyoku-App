@@ -17,9 +17,7 @@
 /.data
 
 # next.js
-/.next/
-/.next-stale/
-/.next-stale-*/
+/.next*/
 /out/
 
 # production
