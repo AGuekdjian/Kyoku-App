@@ -6,6 +6,7 @@ import { connectDb } from "@/lib/db";
 import { paginationInput, totalPages } from "@/lib/pagination";
 import { Grade } from "@/models/Grade";
 import { Student } from "@/models/Student";
+import { StudentEditor } from "./student-editor";
 
 export const dynamic = "force-dynamic";
 const PAGE_SIZE = 20;
@@ -288,20 +289,14 @@ export default async function StudentsPage({
                       </span>
                     </td>
                     <td>
-                      <details className="inline-editor">
-                        <summary>Editar</summary>
-                        <div className="editor-popover">
-                          <ResourceForm
-                            endpoint={`/api/students/${String(student._id)}`}
-                            method="PATCH"
-                            submitLabel="Guardar cambios"
-                            fields={studentFields(
-                              grades as GradeOption[],
-                              editable,
-                            )}
-                          />
-                        </div>
-                      </details>
+                      <StudentEditor
+                        endpoint={`/api/students/${String(student._id)}`}
+                        studentName={`${String(student.firstName)} ${String(student.lastName)}`}
+                        fields={studentFields(
+                          grades as GradeOption[],
+                          editable,
+                        )}
+                      />
                     </td>
                   </tr>
                 );
