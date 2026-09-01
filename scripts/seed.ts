@@ -1,5 +1,6 @@
 import bcrypt from "bcrypt";
 import mongoose from "mongoose";
+import { MIN_PASSWORD_LENGTH } from "../src/features/auth/password";
 import { connectDb } from "../src/lib/db";
 import { Activity } from "../src/models/Activity";
 import { Exam } from "../src/models/Exam";
@@ -17,9 +18,9 @@ async function main() {
     throw new Error("Seed only accepts a kyoku_dev database");
   const email = process.env.SEED_ADMIN_EMAIL;
   const password = process.env.SEED_ADMIN_PASSWORD;
-  if (!email || !password || password.length < 12)
+  if (!email || !password || password.length < MIN_PASSWORD_LENGTH)
     throw new Error(
-      "Set SEED_ADMIN_EMAIL and a SEED_ADMIN_PASSWORD of at least 12 characters",
+      `Set SEED_ADMIN_EMAIL and a SEED_ADMIN_PASSWORD of at least ${MIN_PASSWORD_LENGTH} characters`,
     );
 
   await connectDb();

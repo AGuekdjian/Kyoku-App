@@ -55,7 +55,7 @@ El storage local está pensado para Docker/desarrollo. Antes de desplegar carga 
 
 ### Seed de desarrollo
 
-Definir `SEED_ADMIN_EMAIL` y una `SEED_ADMIN_PASSWORD` de al menos 12 caracteres en `.env.local`, luego ejecutar `npm run seed`. El script se niega a operar en producción o contra una base cuyo nombre no contenga `kyoku_dev`.
+Definir `SEED_ADMIN_EMAIL` y una `SEED_ADMIN_PASSWORD` de al menos 8 caracteres en `.env.local`, luego ejecutar `npm run seed`. El script se niega a operar en producción o contra una base cuyo nombre no contenga `kyoku_dev`.
 
 ## Git, CI y deployment
 

@@ -1,6 +1,10 @@
 "use server";
 import bcrypt from "bcrypt";
 import { redirect } from "next/navigation";
+import {
+  MAX_PASSWORD_LENGTH,
+  MIN_PASSWORD_LENGTH,
+} from "@/features/auth/password";
 import { z } from "zod";
 import { connectDb } from "@/lib/db";
 import { User } from "@/models/User";
@@ -12,7 +16,10 @@ export async function login(
   formData: FormData,
 ): Promise<LoginState> {
   const parsed = z
-    .object({ email: z.string().email(), password: z.string().min(8).max(200) })
+    .object({
+      email: z.string().email(),
+      password: z.string().min(MIN_PASSWORD_LENGTH).max(MAX_PASSWORD_LENGTH),
+    })
     .safeParse(Object.fromEntries(formData));
   if (!parsed.success)
     return { error: "Ingresá un email y contraseña válidos." };
