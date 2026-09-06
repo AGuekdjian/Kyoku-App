@@ -3,6 +3,8 @@ import { PaginationNav } from "@/components/pagination-nav";
 import { connectDb } from "@/lib/db";
 import { paginationInput, totalPages } from "@/lib/pagination";
 import { Activity } from "@/models/Activity";
+import { Student } from "@/models/Student";
+import { ActivityParticipants } from "./activity-participants";
 
 export const dynamic = "force-dynamic";
 const PAGE_SIZE = 20;
@@ -16,14 +18,20 @@ export default async function Activities({
   const params = await searchParams;
   const { page, skip } = paginationInput(params.page, PAGE_SIZE);
   const filter = { deletedAt: null };
-  const [items, total] = await Promise.all([
+  const [items, total, students] = await Promise.all([
     Activity.find(filter)
-      .select("name type startDate location")
+      .select(
+        "name type startDate endDate location organizer description notes participants",
+      )
       .sort({ startDate: -1 })
       .skip(skip)
       .limit(PAGE_SIZE)
       .lean(),
     Activity.countDocuments(filter),
+    Student.find({ active: true, deletedAt: null })
+      .select("firstName lastName")
+      .sort({ lastName: 1, firstName: 1 })
+      .lean(),
   ]);
   const pages = totalPages(total, PAGE_SIZE);
   return (
@@ -53,7 +61,11 @@ export default async function Activities({
               ],
             },
             { name: "startDate", label: "Fecha", type: "date", required: true },
+            { name: "endDate", label: "Fecha final", type: "date" },
             { name: "location", label: "Lugar" },
+            { name: "organizer", label: "Organizador" },
+            { name: "description", label: "Descripción" },
+            { name: "notes", label: "Observaciones" },
           ]}
         />
       </details>
@@ -69,6 +81,14 @@ export default async function Activities({
                 </small>
               </div>
               <span>{String(item.location ?? "")}</span>
+              <ActivityParticipants
+                activityId={String(item._id)}
+                students={students.map((student) => ({
+                  id: String(student._id),
+                  name: `${String(student.lastName)}, ${String(student.firstName)}`,
+                }))}
+                initialIds={(item.participants ?? []).map(String)}
+              />
             </div>
           ))
         ) : (

@@ -1,6 +1,7 @@
 import { requireAdminPage } from "@/features/auth/require-admin-page";
 import { connectDb } from "@/lib/db";
 import { Settings } from "@/models/Settings";
+import { ResourceForm } from "@/components/resource-form";
 
 export const dynamic = "force-dynamic";
 
@@ -38,6 +39,29 @@ export default async function SettingsPage() {
           Los cambios sensibles requieren rol ADMIN y se auditan desde el
           servidor.
         </p>
+        <details>
+          <summary>Editar configuración</summary>
+          <ResourceForm
+            endpoint="/api/settings"
+            method="PATCH"
+            submitLabel="Guardar configuración"
+            fields={[
+              {
+                name: "dojoName",
+                label: "Nombre del dojo",
+                required: true,
+                defaultValue: String(settings?.dojoName ?? "Mi dojo"),
+              },
+              {
+                name: "weightStaleDays",
+                label: "Días para actualizar el peso",
+                type: "number",
+                required: true,
+                defaultValue: Number(settings?.weightStaleDays ?? 90),
+              },
+            ]}
+          />
+        </details>
       </section>
     </>
   );

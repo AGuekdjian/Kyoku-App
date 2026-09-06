@@ -19,3 +19,11 @@ export function weightStatus(
   const days = Math.floor((at.getTime() - updatedAt.getTime()) / 86_400_000);
   return days >= staleAfterDays ? "stale" : "current";
 }
+
+export function weightAgeDays(updatedAt: Date | undefined, at = new Date()) {
+  if (!updatedAt) return undefined;
+  return Math.max(
+    0,
+    Math.floor((at.getTime() - updatedAt.getTime()) / 86_400_000),
+  );
+}

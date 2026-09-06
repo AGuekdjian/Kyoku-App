@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { calculateAge, weightStatus } from "./age";
+import { calculateAge, weightAgeDays, weightStatus } from "./age";
 describe("student age", () => {
   it("handles a birthday not yet reached", () =>
     expect(
@@ -27,4 +27,10 @@ describe("weight freshness", () => {
     ).toBe("stale"));
   it("marks absent measurements", () =>
     expect(weightStatus(undefined, 90)).toBe("missing"));
+  it("reports elapsed whole days", () => {
+    expect(weightAgeDays(new Date("2026-08-01"), new Date("2026-08-31"))).toBe(
+      30,
+    );
+    expect(weightAgeDays(undefined, new Date("2026-08-31"))).toBeUndefined();
+  });
 });
