@@ -3,38 +3,6 @@
 import { useEffect } from "react";
 import { APP_NAME } from "@/lib/brand";
 
-const styles = {
-  body: {
-    margin: 0,
-    background: "#eff6ff",
-    color: "#172033",
-    fontFamily: "Arial, sans-serif",
-  },
-  main: {
-    minHeight: "100vh",
-    display: "grid",
-    placeItems: "center",
-    padding: "24px",
-  },
-  card: {
-    width: "min(560px, 100%)",
-    padding: "32px",
-    border: "1px solid #bfdbfe",
-    borderRadius: "18px",
-    background: "white",
-    boxShadow: "0 18px 50px rgba(30, 64, 175, 0.12)",
-  },
-  button: {
-    padding: "11px 18px",
-    border: 0,
-    borderRadius: "10px",
-    background: "#1d4ed8",
-    color: "white",
-    fontWeight: 700,
-    cursor: "pointer",
-  },
-} as const;
-
 export default function GlobalError({
   error,
   retry,
@@ -45,19 +13,33 @@ export default function GlobalError({
   useEffect(() => {
     console.error(error);
   }, [error]);
+
   return (
     <html lang="es">
-      <body style={styles.body}>
+      <body className="m-0 bg-blue-50 text-[#172033]">
         <title>Error | {APP_NAME}</title>
-        <main style={styles.main}>
-          <section style={styles.card} role="alert">
-            <p style={{ color: "#1d4ed8", fontWeight: 700 }}>{APP_NAME}</p>
-            <h1>La aplicación encontró un problema</h1>
-            <p>
+        <main className="grid min-h-dvh place-items-center p-4 sm:p-6">
+          <section
+            className="w-full max-w-xl rounded-3xl border border-blue-200 bg-white p-6 shadow-xl shadow-blue-950/10 sm:p-9"
+            role="alert"
+          >
+            <p className="font-bold text-blue-700">{APP_NAME}</p>
+            <h1 className="my-3 text-3xl font-bold tracking-tight sm:text-4xl">
+              La aplicación encontró un problema
+            </h1>
+            <p className="text-slate-600">
               Reintentá la carga. Tus datos no se muestran en esta pantalla.
             </p>
-            {error.digest ? <p>Referencia: {error.digest}</p> : null}
-            <button type="button" style={styles.button} onClick={retry}>
+            {error.digest ? (
+              <p className="rounded-xl bg-slate-50 p-3 text-sm">
+                Referencia: {error.digest}
+              </p>
+            ) : null}
+            <button
+              type="button"
+              className="mt-4 min-h-11 rounded-xl bg-blue-700 px-5 py-2.5 font-bold text-white hover:bg-blue-800"
+              onClick={retry}
+            >
               Reintentar
             </button>
           </section>

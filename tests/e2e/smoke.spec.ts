@@ -25,6 +25,21 @@ test("authenticates and renders the private dashboard", async ({ page }) => {
   await expect(page.getByRole("link", { name: /DojoNexo/ })).toBeVisible();
 });
 
+test("keeps the primary experience contained on mobile", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await loginAsAdmin(page);
+  await expect(
+    page.getByRole("navigation", { name: "Navegación principal" }),
+  ).toBeVisible();
+  await page.goto("/students");
+  await expect(page.getByRole("heading", { name: "Alumnos" })).toBeVisible();
+  const dimensions = await page.evaluate(() => ({
+    viewport: document.documentElement.clientWidth,
+    page: document.documentElement.scrollWidth,
+  }));
+  expect(dimensions.page).toBeLessThanOrEqual(dimensions.viewport);
+});
+
 test("shows operational status without exposing secrets", async ({ page }) => {
   await loginAsAdmin(page);
   await page.getByRole("link", { name: "Estado" }).click();
