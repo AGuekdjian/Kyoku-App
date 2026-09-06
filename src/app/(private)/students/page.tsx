@@ -7,6 +7,7 @@ import { paginationInput, totalPages } from "@/lib/pagination";
 import { Grade } from "@/models/Grade";
 import { Student } from "@/models/Student";
 import { StudentEditor } from "./student-editor";
+import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 const PAGE_SIZE = 20;
@@ -171,7 +172,7 @@ export default async function StudentsPage({
   const [students, total, grades] = await Promise.all([
     Student.find(filter)
       .select(
-        "firstName lastName birthDate gender document medicalProvider phone email address guardianName guardianPhone emergencyContact joinedAt active weight height currentGradeId notes",
+        "firstName lastName birthDate gender document medicalProvider phone email address guardianName guardianPhone emergencyContact joinedAt active weight weightUpdatedAt height currentGradeId notes",
       )
       .populate("currentGradeId", "name type order")
       .sort(
@@ -289,6 +290,12 @@ export default async function StudentsPage({
                       </span>
                     </td>
                     <td>
+                      <Link
+                        className="secondary-button"
+                        href={`/students/${String(student._id)}`}
+                      >
+                        Historial
+                      </Link>
                       <StudentEditor
                         endpoint={`/api/students/${String(student._id)}`}
                         studentName={`${String(student.firstName)} ${String(student.lastName)}`}
