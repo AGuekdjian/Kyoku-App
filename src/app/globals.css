@@ -69,7 +69,28 @@
     @apply min-h-dvh lg:grid lg:grid-cols-[256px_minmax(0,1fr)];
   }
   .sidebar {
-    @apply flex flex-col bg-slate-950 px-4 py-3 text-slate-50 lg:min-h-dvh lg:px-5 lg:py-7;
+    @apply hidden flex-col bg-slate-950 px-4 py-3 text-slate-50 lg:flex lg:min-h-dvh lg:px-5 lg:py-7;
+  }
+  .mobile-header {
+    @apply sticky top-0 z-30 flex h-16 items-center justify-between border-b border-slate-200/80 bg-white/90 px-4 shadow-xs backdrop-blur-xl lg:hidden;
+  }
+  .mobile-header .brand {
+    @apply min-w-0 gap-2.5 p-0 text-slate-950;
+  }
+  .mobile-header .brand > span {
+    @apply size-9 rounded-xl bg-brand-600 text-xs text-white shadow-md shadow-brand-200;
+  }
+  .mobile-header .brand small {
+    @apply hidden;
+  }
+  .mobile-profile {
+    @apply flex items-center gap-1.5;
+  }
+  .mobile-profile > span {
+    @apply grid size-8 place-items-center rounded-full bg-brand-50 text-[11px] font-extrabold text-brand-700 ring-1 ring-brand-100;
+  }
+  .mobile-profile .link-button {
+    @apply min-h-9 rounded-lg px-2 text-slate-500 hover:bg-slate-100 hover:text-slate-900;
   }
   .brand {
     @apply flex items-center gap-3 pb-3 text-inherit no-underline lg:px-2 lg:pb-7;
@@ -100,7 +121,13 @@
     scrollbar-width: thin;
   }
   .sidebar nav a {
-    @apply grid min-h-11 shrink-0 place-items-center whitespace-nowrap rounded-xl px-3 text-sm font-medium text-slate-300 no-underline transition hover:bg-slate-800 hover:text-white focus-visible:bg-slate-800 focus-visible:text-white lg:block;
+    @apply flex min-h-11 shrink-0 items-center gap-3 whitespace-nowrap rounded-xl px-3 text-sm font-medium text-slate-300 no-underline transition hover:bg-slate-800 hover:text-white focus-visible:bg-slate-800 focus-visible:text-white;
+  }
+  .sidebar nav a.is-active {
+    @apply bg-brand-600 text-white shadow-lg shadow-black/20;
+  }
+  .nav-icon {
+    @apply grid size-6 shrink-0 place-items-center text-lg leading-none;
   }
   .profile {
     @apply mt-auto hidden items-center gap-2.5 border-t border-slate-800 px-2 pt-5 lg:flex;
@@ -115,7 +142,56 @@
     @apply ml-auto min-h-0 bg-transparent p-1 text-xs text-slate-300 shadow-none hover:bg-transparent hover:text-white;
   }
   .app-shell > main {
-    @apply mx-auto w-full max-w-[1450px] px-4 py-6 sm:px-6 sm:py-8 lg:px-10 lg:py-12 xl:px-16;
+    @apply mx-auto w-full max-w-[1450px] px-4 pt-6 pb-28 sm:px-6 sm:py-8 lg:px-10 lg:py-12 xl:px-16;
+  }
+  .mobile-navigation {
+    @apply fixed right-3 bottom-3 left-3 z-40 grid grid-cols-5 rounded-2xl border border-slate-200/80 bg-white/95 p-1.5 shadow-[0_16px_45px_rgba(15,23,42,.22)] backdrop-blur-xl lg:hidden;
+  }
+  .mobile-navigation a,
+  .mobile-navigation button {
+    @apply flex min-h-14 min-w-0 flex-col items-center justify-center gap-0.5 rounded-xl bg-transparent px-1 py-1 text-[10px] font-bold text-slate-500 no-underline shadow-none transition;
+  }
+  .mobile-navigation .nav-icon {
+    @apply h-6 text-[21px];
+  }
+  .mobile-navigation :is(a, button).is-active {
+    @apply bg-brand-50 text-brand-700;
+  }
+  .mobile-nav-backdrop {
+    @apply fixed inset-0 z-40 min-h-0 rounded-none bg-slate-950/35 p-0 shadow-none backdrop-blur-[2px] lg:hidden;
+  }
+  .mobile-more-sheet {
+    @apply pointer-events-none fixed right-3 bottom-22 left-3 z-50 translate-y-6 rounded-3xl border border-slate-200 bg-white p-4 opacity-0 shadow-2xl transition duration-200 lg:hidden;
+  }
+  .mobile-more-sheet.is-open {
+    @apply pointer-events-auto translate-y-0 opacity-100;
+  }
+  .mobile-sheet-handle {
+    @apply mx-auto mb-3 h-1 w-10 rounded-full bg-slate-200;
+  }
+  .mobile-sheet-heading {
+    @apply mb-3 flex items-center justify-between;
+  }
+  .mobile-sheet-heading div {
+    @apply grid;
+  }
+  .mobile-sheet-heading small {
+    @apply text-[10px] font-bold tracking-widest text-brand-600 uppercase;
+  }
+  .mobile-sheet-heading strong {
+    @apply text-lg text-slate-950;
+  }
+  .mobile-sheet-heading button {
+    @apply size-10 rounded-full bg-slate-100 p-0 text-2xl font-normal text-slate-600 shadow-none hover:bg-slate-200;
+  }
+  .mobile-more-sheet nav {
+    @apply grid grid-cols-2 gap-2;
+  }
+  .mobile-more-sheet nav a {
+    @apply flex min-h-14 items-center gap-2 rounded-2xl border border-slate-100 bg-slate-50 px-3 text-sm font-bold text-slate-700 no-underline;
+  }
+  .mobile-more-sheet nav a.is-active {
+    @apply border-brand-200 bg-brand-50 text-brand-700;
   }
   .eyebrow {
     @apply text-xs font-bold tracking-widest text-brand-700 uppercase;
@@ -127,14 +203,14 @@
   .panel,
   .columns > section,
   .metrics article {
-    @apply rounded-2xl border border-slate-200 bg-white shadow-sm;
+    @apply rounded-2xl border border-slate-200/80 bg-white shadow-[0_1px_2px_rgba(15,23,42,.04),0_8px_24px_rgba(15,23,42,.04)];
   }
   .panel,
   .columns > section {
     @apply mb-4 p-4 sm:mb-5 sm:p-5 lg:p-6;
   }
   .panel > summary {
-    @apply min-h-6 font-bold text-slate-900;
+    @apply flex min-h-8 items-center justify-between font-bold text-slate-900 marker:text-brand-500;
   }
   .metrics {
     @apply grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 lg:gap-4;
@@ -242,6 +318,46 @@
   }
   .table-action {
     @apply min-h-9 border border-brand-200 bg-brand-50 px-3 py-1.5 text-brand-700 shadow-none hover:bg-brand-100;
+  }
+  @media (max-width: 639px) {
+    .student-table,
+    .student-table tbody,
+    .student-table tr,
+    .student-table td {
+      display: block;
+      width: 100%;
+    }
+    .student-table thead {
+      @apply sr-only;
+    }
+    .student-table tbody {
+      @apply grid gap-3;
+    }
+    .student-table tr {
+      @apply overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-xs;
+    }
+    .student-table td {
+      @apply flex min-h-10 items-center justify-between gap-4 whitespace-normal border-0 px-0 py-2 text-right;
+    }
+    .student-table td::before {
+      content: attr(data-label);
+      @apply shrink-0 text-left text-[10px] font-extrabold tracking-wider text-slate-400 uppercase;
+    }
+    .student-table td:first-child {
+      @apply justify-start border-b border-slate-100 pb-3 text-left text-base;
+    }
+    .student-table td:first-child::before {
+      @apply hidden;
+    }
+    .student-table td:last-child {
+      @apply mt-1 grid grid-cols-2 border-t border-slate-100 pt-3;
+    }
+    .student-table td:last-child::before {
+      @apply hidden;
+    }
+    .student-table td:last-child > * {
+      @apply w-full;
+    }
   }
 
   .pagination {

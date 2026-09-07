@@ -31,6 +31,12 @@ test("keeps the primary experience contained on mobile", async ({ page }) => {
   await expect(
     page.getByRole("navigation", { name: "Navegación principal" }),
   ).toBeVisible();
+  await page.getByRole("button", { name: "Más" }).click();
+  await expect(
+    page.getByRole("navigation", { name: "Más opciones" }),
+  ).toBeVisible();
+  await expect(page.getByRole("link", { name: "Biblioteca" })).toBeVisible();
+  await page.locator(".mobile-sheet-heading").getByRole("button").click();
   await page.goto("/students");
   await expect(page.getByRole("heading", { name: "Alumnos" })).toBeVisible();
   const dimensions = await page.evaluate(() => ({
@@ -38,6 +44,7 @@ test("keeps the primary experience contained on mobile", async ({ page }) => {
     page: document.documentElement.scrollWidth,
   }));
   expect(dimensions.page).toBeLessThanOrEqual(dimensions.viewport);
+  await expect(page.locator(".student-table tbody tr").first()).toBeVisible();
 });
 
 test("shows operational status without exposing secrets", async ({ page }) => {

@@ -244,7 +244,7 @@ export default async function StudentsPage({
 
       <section className="panel">
         <div className="table-wrap">
-          <table>
+          <table className="student-table">
             <thead>
               <tr>
                 <th>Alumno</th>
@@ -269,13 +269,15 @@ export default async function StudentsPage({
                 };
                 return (
                   <tr key={String(student._id)}>
-                    <td>
+                    <td data-label="Alumno">
                       <strong>
                         {String(student.lastName)}, {String(student.firstName)}
                       </strong>
                     </td>
-                    <td>{calculateAge(student.birthDate as Date)}</td>
-                    <td>
+                    <td data-label="Edad">
+                      {calculateAge(student.birthDate as Date)}
+                    </td>
+                    <td data-label="Grado">
                       {grade?.name ?? "—"}
                       {grade?.type && grade.order != null ? (
                         <small className="table-subtitle">
@@ -283,13 +285,13 @@ export default async function StudentsPage({
                         </small>
                       ) : null}
                     </td>
-                    <td>{String(student.phone)}</td>
-                    <td>
+                    <td data-label="Contacto">{String(student.phone)}</td>
+                    <td data-label="Estado">
                       <span className="badge">
                         {student.active ? "Activo" : "Inactivo"}
                       </span>
                     </td>
-                    <td>
+                    <td data-label="Acciones">
                       <Link
                         className="secondary-button"
                         href={`/students/${String(student._id)}`}
